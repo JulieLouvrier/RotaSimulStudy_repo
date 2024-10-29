@@ -1,0 +1,1265 @@
+---
+title: "Plot_AllResults"
+author: "JLouvrier, OGimenez, MFidino"
+date: '2023-07-07'
+output: 
+  html_document: 
+    fig_caption: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = "")
+rm(list=ls())
+getwd()
+```
+
+# load packages and working directory
+
+```{r packages}
+setwd(here::here())
+library(tidyverse)
+library(ggplot2)
+library(hrbrthemes)
+library(viridis)
+library(ggpubr)
+library(RColorBrewer)
+
+
+```
+
+## Delta AIC 
+```{R Delta AICc}
+
+proportionDeltaAIC_prop_Pr1.6_Pr2.8_PsiA0.5 <- readRDS(file = (paste0(here::here("output","proportionDeltaAIC_prop_Pr1.6_Pr2.8_PsiA0.5_30-250sites.RDS"))))
+
+
+proportionDeltaAIC_prop_Pr1.6_Pr2.8_PsiA0.5prop  <- proportionDeltaAIC_prop_Pr1.6_Pr2.8_PsiA0.5 %>% mutate(isabove75 = if_else(proportion>0.75, 1,0))
+
+
+my.lines<-data.frame(x=c(.5,.5,.5,.5,.5), 
+                     y=c(3.5,6.5,9.5,12.5,15.5), 
+    xend=c(7.5,7.5,7.5,7.5,7.5), 
+    yend=c(3.5,6.5,9.5,12.5,15.5))
+
+my.other.lines <- data.frame(
+  x = c(3.5, 3.5, 4.5, 4.5, 5.5, 5.5, 6.5, 6.5),
+  y = c(18.5,17.5, 17.5, 9.5, 9.5, 6.5, 6.5, 3.5), 
+  xend = c(3.5,4.5, 4.5, 5.5, 5.5, 6.5, 6.5, 7.5),
+  yend = c(17.5, 17.5, 9.5, 9.5, 6.5, 6.5, 3.5, 3.5)
+)
+
+plot05 <- ggplot(proportionDeltaAIC_prop_Pr1.6_Pr2.8_PsiA0.5prop, aes(PredLevel, Simulation_scenario, fill= proportion)) + 
+  geom_tile() +
+  scale_fill_viridis(option="rocket", direction = -1) +
+  theme_ipsum() + 
+  geom_segment(data = my.other.lines,aes(x,y,xend=xend, yend=yend), linetype = 1, inherit.aes=F, color='red', linewidth = 2 )+   
+  geom_segment(data=my.lines, aes(x,y,xend=xend, yend=yend), linetype = 2, inherit.aes=F)
+
+plot05
+
+ggsave(paste0(here::here("plots", "PlotsAlltogether","deltaAIC_heatmap_05"), gsub("-", "_", Sys.Date()), ".png"), height=8, width=12, units='in', dpi=600, bg = "white")
+
+
+##### psiA 0.7
+proportionDeltaAIC_prop_Pr1.6_Pr2.8_PsiA0.7 <- readRDS(file = (paste0(here::here("output","proportionDeltaAIC_prop_Pr1.6_Pr2.8_PsiA0.7_30-250sites.RDS"))))
+
+
+
+proportionDeltaAIC_prop_Pr1.6_Pr2.8_PsiA0.7prop  <- proportionDeltaAIC_prop_Pr1.6_Pr2.8_PsiA0.7 %>% mutate(isabove75 = if_else(proportion>0.75, 1,0))
+
+
+my.lines<-data.frame(x=c(.5,.5,.5,.5,.5), 
+                     y=c(3.5,6.5,9.5,12.5,15.5), 
+    xend=c(7.5,7.5,7.5,7.5,7.5), 
+    yend=c(3.5,6.5,9.5,12.5,15.5))
+
+my.other.lines <- data.frame(
+  x = c(4.5, 4.5, 5.5, 5.5, 4.5, 4.5, 5.5, 5.5, 6.5, 6.5, 5.5, 5.5),
+  y = c(18.5, 14.5, 14.5, 13.5, 13.5, 12.5, 12.5, 9.5, 9.5, 7.5, 7.5, 6.5),
+  xend = c(4.5, 5.5, 5.5, 4.5, 4.5, 5.5, 5.5, 6.5, 6.5, 5.5, 5.5, 7.5),
+  yend = c(14.5, 14.5, 13.5, 13.5, 12.5, 12.5, 9.5, 9.5, 7.5, 7.5, 6.5, 6.5)
+)
+
+plot07 <- ggplot(proportionDeltaAIC_prop_Pr1.6_Pr2.8_PsiA0.7prop, aes(PredLevel, Simulation_scenario, fill= proportion)) + 
+  geom_tile() +
+  scale_fill_viridis(option="rocket", direction = -1) +
+  theme_ipsum() + 
+  geom_segment(data = my.other.lines,aes(x,y,xend=xend, yend=yend), linetype = 1, inherit.aes=F, color='red', linewidth = 2 ) +
+  geom_segment(data=my.lines, aes(x,y,xend=xend, yend=yend), linetype = 2, inherit.aes=F)
+
+plot07
+
+ggsave(paste0(here::here("plots", "PlotsAlltogether","deltaAIC_heatmap_07_"), gsub("-", "_", Sys.Date()), ".png"), height=8, width=12, units='in', dpi=600, bg = "white")
+
+
+```
+
+## f12
+```{r MSE}
+f12PsiA0.5 <- readRDS(file = here::here("output","signif_PsiA0.5_Sims.RDS"))
+f12PsiA0.7 <- readRDS(file = here::here("output","signif_PsiA0.7_Sims.RDS"))
+
+f12PsiA0.5prop  <- f12PsiA0.5 %>% 
+  mutate(isabove75 = if_else(percentPValues.05>0.75, 1,0)) %>%
+  mutate(Simulation_scenario = paste(Nsites ,Nrep ,sep = '_'))
+
+f12PsiA0.5prop$Simulation_scenario <- factor(f12PsiA0.5prop$Simulation_scenario,levels = c("30_3", "30_5", "30_10", "50_3", "50_5", "50_10", "100_3", "100_5", "100_10", "150_3", "150_5", "150_10", "200_3", "200_5", "200_10", "250_3", "250_5", "250_10"))
+
+my.lines<-data.frame(x=c(.5,.5,.5,.5,.5), 
+                     y=c(3.5,6.5,9.5,12.5,15.5), 
+    xend=c(7.5,7.5,7.5,7.5,7.5), 
+    yend=c(3.5,6.5,9.5,12.5,15.5))
+
+my.other.lines <- data.frame(
+  x = c(4.5, 4.5 ,5.5, 5.5, 6.5, 6.5, 7.5, 7.5, 6.5, 6.5 ),
+  y = c(18.5, 12.5, 12.5, 9.5, 9.5, 14.5, 14.5, 15.5, 15.5, 16.5),
+  xend = c(4.5 ,5.5, 5.5, 6.5, 6.5, 7.5, 7.5, 6.5, 6.5, 7.5),
+  yend = c(12.5, 12.5, 9.5, 9.5, 14.5, 14.5, 15.5, 15.5, 16.5, 16.5)
+)
+
+plotf12_05 <- ggplot(f12PsiA0.5prop, aes(PredLevel, Simulation_scenario, fill= percentPValues.05)) + 
+  geom_tile() +
+  scale_fill_viridis(option="rocket", direction = -1,
+                     begin = 0, end = 1) +
+  theme_ipsum() + 
+  geom_segment(data = my.other.lines,aes(x,y,xend=xend, yend=yend), linetype = 1, inherit.aes=F, color='red', linewidth = 2 ) +
+  geom_segment(data=my.lines, aes(x,y,xend=xend, yend=yend), linetype = 2, inherit.aes=F)
+
+plotf12_05
+
+ggsave(paste0(here::here("plots", "PlotsAlltogether","f12_heatmap_05_"), gsub("-", "_", Sys.Date()), ".png"), height=8, width=12, units='in', dpi=600, bg = "white")
+
+###################################################
+f12PsiA0.7prop  <- f12PsiA0.7 %>% 
+  mutate(isabove75 = if_else(percentPValues.05>0.75, 1,0)) %>%
+  mutate(Simulation_scenario = paste(Nsites ,Nrep ,sep = '_'))
+
+f12PsiA0.7prop$Simulation_scenario <- factor(f12PsiA0.7prop$Simulation_scenario,levels = c("30_3", "30_5", "30_10", "50_3", "50_5", "50_10", "100_3", "100_5", "100_10", "150_3", "150_5", "150_10", "200_3", "200_5", "200_10", "250_3", "250_5", "250_10"))
+
+my.lines<-data.frame(x=c(.5,.5,.5,.5,.5), 
+                     y=c(3.5,6.5,9.5,12.5,15.5), 
+    xend=c(7.5,7.5,7.5,7.5,7.5), 
+    yend=c(3.5,6.5,9.5,12.5,15.5))
+
+my.other.lines <- data.frame(
+  x = c(5.5, 5.5, 6.5),
+  y = c(18.5, 16.5, 16.5),
+  xend = c(5.5 , 6.5, 6.5),
+  yend = c(16.5, 16.5,18.5)
+)
+
+plotf12_07 <- ggplot(f12PsiA0.7prop, aes(PredLevel, Simulation_scenario, fill= percentPValues.05)) + 
+  geom_tile() +
+  scale_fill_viridis(option="rocket", direction = -1,
+                     begin = 0, end = 1) +
+  theme_ipsum() + 
+  geom_segment(data = my.other.lines,aes(x,y,xend=xend, yend=yend), linetype = 1, inherit.aes=F, color='red', linewidth = 2 ) +
+  geom_segment(data=my.lines, aes(x,y,xend=xend, yend=yend), linetype = 2, inherit.aes=F)
+
+plotf12_07
+
+ggsave(paste0(here::here("plots", "PlotsAlltogether","f12_heatmap_07_"), gsub("-", "_", Sys.Date()), ".png"), height=8, width=12, units='in', dpi=600, bg = "white")
+
+```
+
+## coverage
+```{r coverage}
+coverage_Pr1.6_Pr2.8_PsiA0.5 <- readRDS(file = here::here("output","coveragePsiA0.5.RDS"))
+
+coverage_Pr1.6_Pr2.8_PsiA0.7 <- readRDS(file = here::here("output","coveragePsiA0.7.RDS"))
+
+############################################################################################# 
+coverage_pivlong <- coverage_Pr1.6_Pr2.8_PsiA0.5 %>% 
+  #rbind(coverage_Pr1.6_Pr2.8_PsiA0.5, coverage_Pr1.6_Pr2.8_PsiA0.7) %>% 
+  select(coveragePsiA, coveragePsiBA, coveragePsiBa, PredLevel, Nsites, Nreps) %>% 
+  pivot_longer(cols = c(coveragePsiA, coveragePsiBa, coveragePsiBA))
+
+my_pal <- rcartocolor::carto_pal(n = 8, name = "Bold")[c(1, 3, 7, 2)]
+
+coverage_pivlong$PredLevel = factor(coverage_pivlong$PredLevel, levels = c("none", "low", "low-medium", "medium", "high-medium", "low-high", "high"))
+
+labs = c(expression(Psi^{A}), 
+         expression(Psi^{Ba}), 
+         expression(Psi^{BA}))
+  
+  
+##30 sites
+sites30 <- coverage_pivlong %>% 
+  #separate(Simulation_scenario, c("Nsites", "Nreps")) %>% 
+  filter(Nsites == "30") 
+
+sites30$Nreps <- factor(sites30$Nreps, levels = c("3", "5", "10"))
+  
+g30 <- ggplot(sites30, aes(x = PredLevel, y = value, color = name, fill = name)) +
+  ylim(0.75,1) +
+  scale_color_manual(values = my_pal, 
+                     name = "Occupancy probability",
+                     labels = labs) +
+  scale_fill_manual(values = my_pal, 
+                    name = "Occupancy probability",
+                      labels = labs) + 
+  geom_boxplot(alpha = .5, size = 1, outlier.size = 5) +
+    #ggtitle(expression(paste(Psi^A, " = 0.7"))) +
+  # annotate('text', x = 0.8, y = 0.12,
+  #           label = expression(paste(Psi^A, " = 0.5")), size = 7) +
+    theme_ipsum() +
+    ylab("") + 
+      theme( 
+      #legend.position="none",
+      plot.title = element_text(size=16, hjust = 0.5),
+      #axis.text.y=element_blank(),
+      axis.text=element_text(size=16),
+      legend.text=element_text(size=16),
+      axis.text.x = element_text(size = 16),
+      axis.title.x = element_blank(),
+      axis.text.y = element_text(size = 16),
+      axis.title.y = element_text(size = 18, angle=89.9, vjust = 0.55),
+      legend.title=element_text(size=16),
+      panel.background = element_rect(fill = "white"), 
+      plot.margin = unit(c(0.2,0.2,0.2,1), 'lines')) +
+      scale_x_discrete(labels=c("3" = "3 reps",
+                                "5" = "5 reps",
+                                "10" = "10 reps")) +
+  ggtitle("30 sites")
+
+
+##50 sites
+sites50 <- coverage_pivlong %>% 
+  #separate(Simulation_scenario, c("Nsites", "Nreps")) %>% 
+  filter(Nsites == "50") 
+
+sites50$Nreps <- factor(sites50$Nreps, levels = c("3", "5", "10"))
+
+g50 <- ggplot(sites50, aes(x = PredLevel, y = value, color = name, fill = name)) +
+  ylim(0.75,1) +
+  scale_color_manual(values = my_pal, 
+                     name = "Occupancy probability",
+                     labels = labs) +
+  scale_fill_manual(values = my_pal, 
+                    name = "Occupancy probability",
+                      labels = labs) + 
+  geom_boxplot(alpha = .5, size = 1, outlier.size = 5) +
+      theme_ipsum() +
+    ylab("") + 
+      theme( 
+      #legend.position="none",
+      plot.title = element_text(size=16, hjust = 0.5),
+      #axis.text.y=element_blank(),
+      axis.text=element_text(size=16),
+      legend.text=element_text(size=16),
+      axis.text.x = element_text(size = 16),
+      axis.title.x = element_blank(),
+      axis.text.y  = element_blank(),
+      axis.title.y = element_blank(),
+      axis.ticks.y = element_blank(),
+      legend.title=element_text(size=16),
+      panel.background = element_rect(fill = "white"), 
+      plot.margin = unit(c(0.2,0.2,0.2,1), 'lines')) +
+      scale_x_discrete(labels=c("3" = "3 reps",
+                                "5" = "5 reps",
+                                "10" = "10 reps")) +
+    ggtitle("50 sites")
+
+
+
+##100 sites
+sites100 <- coverage_pivlong %>% 
+  #separate(Simulation_scenario, c("Nsites", "Nreps")) %>% 
+  filter(Nsites == "100") 
+
+sites100$Nreps <- factor(sites100$Nreps, levels = c("3", "5", "10"))
+
+  
+g100 <- ggplot(sites100, aes(x = PredLevel, y = value, color = name, fill = name)) +
+  ylim(0.75,1) +
+  scale_color_manual(values = my_pal, 
+                     name = "Occupancy probability",
+                     labels = labs) +
+  scale_fill_manual(values = my_pal, 
+                    name = "Occupancy probability",
+                      labels = labs) + 
+  geom_boxplot(alpha = .5, size = 1, outlier.size = 5) +
+      theme_ipsum() +
+    ylab("") + 
+      theme( 
+      #legend.position="none",
+      plot.title = element_text(size=16, hjust = 0.5),
+      #axis.text.y=element_blank(),
+      axis.text=element_text(size=16),
+      legend.text=element_text(size=16),
+      axis.text.x = element_text(size = 16),
+      axis.title.x = element_blank(),
+      axis.text.y  = element_blank(),
+      axis.title.y = element_blank(),
+      axis.ticks.y = element_blank(),
+      legend.title=element_text(size=16),
+      panel.background = element_rect(fill = "white"), 
+      plot.margin = unit(c(0.2,0.2,0.2,1), 'lines')) +
+      scale_x_discrete(labels=c("3" = "3 reps",
+                                "5" = "5 reps",
+                                "10" = "10 reps")) +
+    ggtitle("100 sites")
+
+
+
+##150 sites
+sites150 <- coverage_pivlong %>% 
+  #separate(Simulation_scenario, c("Nsites", "Nreps")) %>% 
+  filter(Nsites == "150") 
+
+sites150$Nreps <- factor(sites150$Nreps, levels = c("3", "5", "10"))
+
+  
+g150 <- ggplot(sites150, aes(x = PredLevel, y = value, color = name, fill = name)) +
+  ylim(0.75,1) +
+  scale_color_manual(values = my_pal, 
+                     name = "Occupancy probability",
+                     labels = labs) +
+  scale_fill_manual(values = my_pal, 
+                    name = "Occupancy probability",
+                      labels = labs) + 
+  geom_boxplot(alpha = .5, size = 1, outlier.size = 5) +
+    #ggtitle(expression(paste(Psi^A, " = 0.7"))) +
+  # annotate('text', x = 0.8, y = 0.12,
+  #           label = expression(paste(Psi^A, " = 0.5")), size = 7) +
+    theme_ipsum() +
+    ylab("") + 
+      theme( 
+      #legend.position="none",
+      plot.title = element_text(size=16, hjust = 0.5),
+      #axis.text.y=element_blank(),
+      axis.text=element_text(size=16),
+      legend.text=element_text(size=16),
+      axis.text.x = element_text(size = 16),
+      axis.title.x = element_blank(),
+      axis.text.y = element_text(size = 16),
+      axis.title.y = element_text(size = 18, angle=89.9, vjust = 0.55),
+      legend.title=element_text(size=16),
+      panel.background = element_rect(fill = "white"), 
+      plot.margin = unit(c(0.2,0.2,0.2,1), 'lines')) +
+      scale_x_discrete(labels=c("3" = "3 reps",
+                                "5" = "5 reps",             
+                                "10" = "10 reps")) +
+  ggtitle("150 sites")
+
+
+##200 sites
+sites200 <- coverage_pivlong %>% 
+  #separate(Simulation_scenario, c("Nsites", "Nreps")) %>% 
+  filter(Nsites == "200") 
+
+sites200$Nreps <- factor(sites200$Nreps, levels = c("3", "5", "10"))
+
+
+g200 <- ggplot(sites200, aes(x = PredLevel, y = value, color = name, fill = name)) +
+  ylim(0.75,1) +
+  scale_color_manual(values = my_pal, 
+                     name = "Occupancy probability",
+                     labels = labs) +
+  scale_fill_manual(values = my_pal, 
+                    name = "Occupancy probability",
+                      labels = labs) + 
+  geom_boxplot(alpha = .5, size = 1, outlier.size = 5) +
+      theme_ipsum() +
+    ylab("") + 
+      theme( 
+      #legend.position="none",
+      plot.title = element_text(size=16, hjust = 0.5),
+      #axis.text.y=element_blank(),
+      axis.text=element_text(size=16),
+      legend.text=element_text(size=16),
+      axis.text.x = element_text(size = 16),
+      axis.title.x = element_blank(),
+      axis.text.y  = element_blank(),
+      axis.title.y = element_blank(),
+      axis.ticks.y = element_blank(),
+      legend.title=element_text(size=16),
+      panel.background = element_rect(fill = "white"), 
+      plot.margin = unit(c(0.2,0.2,0.2,1), 'lines')) +
+      scale_x_discrete(labels=c("3" = "3 reps",
+                                "5" = "5 reps",             
+                                "10" = "10 reps")) +
+    ggtitle("200 sites")
+
+
+
+##250 sites
+sites250 <- coverage_pivlong %>% 
+  #separate(Simulation_scenario, c("Nsites", "Nreps")) %>% 
+  filter(Nsites == "250") 
+
+sites250$Nreps <- factor(sites250$Nreps, levels = c("3", "5", "10"))
+
+  
+g250 <- ggplot(sites250, aes(x = PredLevel, y = value, color = name, fill = name)) +
+  ylim(0.75,1) +
+  scale_color_manual(values = my_pal, 
+                     name = "Occupancy probability",
+                     labels = labs) +
+  scale_fill_manual(values = my_pal, 
+                    name = "Occupancy probability",
+                      labels = labs) + 
+  geom_boxplot(alpha = .5, size = 1, outlier.size = 5) +
+      theme_ipsum() +
+    ylab("") + 
+      theme( 
+      #legend.position="none",
+      plot.title = element_text(size=16, hjust = 0.5),
+      #axis.text.y=element_blank(),
+      axis.text=element_text(size=16),
+      legend.text=element_text(size=16),
+      axis.text.x = element_text(size = 16),
+      axis.title.x = element_blank(),
+      axis.text.y  = element_blank(),
+      axis.title.y = element_blank(),
+      axis.ticks.y = element_blank(),
+      legend.title=element_text(size=16),
+      panel.background = element_rect(fill = "white"), 
+      plot.margin = unit(c(0.2,0.2,0.2,1), 'lines')) +
+      scale_x_discrete(labels=c("3" = "3 reps",
+                                "5" = "5 reps",             
+                                "10" = "10 reps")) +
+    ggtitle("250 sites")
+
+
+
+
+##################################################################################
+library(patchwork)
+
+# loadfonts(device = "win")
+comb <- g30 + g50 + g100 +
+  g150 + g200 + g250 & theme(legend.position = "bottom")
+comb + plot_layout(guides="collect")
+
+
+
+ggsave(paste0(here::here("plots", "PlotsAlltogether","coverage_ALL_boxplots_PsiA05_30-250Sites_PredLevel_"), gsub("-", "_", Sys.Date()), ".png"), height=8, width=15, units='in', dpi=600, bg = "white")
+
+```
+
+## MSE
+```{r MSE}
+MSE_Pr1.6_Pr2.8_PsiA0.5 <- readRDS(file = (paste0(here::here("output","MSE_Pr1.6_Pr2.8_PsiA0.5_30-250SitesPsiA.7.RDS"))))
+
+MSE_Pr1.6_Pr2.8_PsiA0.7 <- readRDS(file = (paste0(here::here("output","MSE_Pr1.6_Pr2.8_PsiA0.7_30-250SitesPsiA.7.RDS"))))
+
+
+############################################################################################# 
+MSE_pivlong <- MSE_Pr1.6_Pr2.8_PsiA0.7 %>% 
+  #rbind(MSE_Pr1.6_Pr2.8_PsiA0.5, MSE_Pr1.6_Pr2.8_PsiA0.7) %>% 
+  select(MSE_psiA, MSE_psiBA, MSE_psiBa, Predation_level, Simulation_scenario) %>% 
+  pivot_longer(cols = c(MSE_psiA, MSE_psiBA, MSE_psiBa))
+
+my_pal <- rcartocolor::carto_pal(n = 8, name = "Bold")[c(1, 3, 7, 2)]
+
+
+labs = c(expression(Psi^{A}), 
+         expression(Psi^{Ba}), 
+         expression(Psi^{BA}))
+  
+  
+##30 sites
+sites30 <- MSE_pivlong %>% 
+  separate(Simulation_scenario, c("Nsites", "Nreps")) %>% 
+  filter(Nsites == "30sites") 
+
+sites30$Nreps <- factor(sites30$Nreps, levels = c("3reps", "5reps", "10reps"))
+  
+g30 <- ggplot(sites30, aes(x = Nreps, y = value, color = name, fill = name)) +
+  ylim(0,0.13) +
+  scale_color_manual(values = my_pal, 
+                     name = "Occupancy probability",
+                     labels = labs) +
+  scale_fill_manual(values = my_pal, 
+                    name = "Occupancy probability",
+                      labels = labs) + 
+  geom_boxplot(alpha = .5, size = 1, outlier.size = 5) +
+    #ggtitle(expression(paste(Psi^A, " = 0.7"))) +
+  # annotate('text', x = 0.8, y = 0.12,
+  #           label = expression(paste(Psi^A, " = 0.5")), size = 7) +
+    theme_ipsum() +
+    ylab("MSE") + 
+      theme( 
+      #legend.position="none",
+      plot.title = element_text(size=16, hjust = 0.5),
+      #axis.text.y=element_blank(),
+      axis.text=element_text(size=16),
+      legend.text=element_text(size=16),
+      axis.text.x = element_text(size = 16),
+      axis.title.x = element_blank(),
+      axis.text.y = element_text(size = 16),
+      axis.title.y = element_text(size = 18, angle=89.9, vjust = 0.55),
+      legend.title=element_text(size=16),
+      panel.background = element_rect(fill = "white"), 
+      plot.margin = unit(c(0.2,0.2,0.2,1), 'lines')) +
+      scale_x_discrete(labels=c("3reps" = "3 reps",
+                                "5reps" = "5 reps",
+                                "10reps" = " 10 reps")) +
+  ggtitle("30 sites")
+
+
+##50 sites
+sites50 <- MSE_pivlong %>% 
+  separate(Simulation_scenario, c("Nsites", "Nreps")) %>% 
+  filter(Nsites == "50sites") 
+
+sites50$Nreps <- factor(sites50$Nreps, levels = c("3reps", "5reps", "10reps"))
+
+g50 <- ggplot(sites50, aes(x = Nreps, y = value, color = name, fill = name)) +
+  ylim(0,0.13) +
+  scale_color_manual(values = my_pal, 
+                     name = "Occupancy probability",
+                     labels = labs) +
+  scale_fill_manual(values = my_pal, 
+                    name = "Occupancy probability",
+                      labels = labs) + 
+  geom_boxplot(alpha = .5, size = 1, outlier.size = 5) +
+      theme_ipsum() +
+    ylab("MSE") + 
+      theme( 
+      #legend.position="none",
+      plot.title = element_text(size=16, hjust = 0.5),
+      #axis.text.y=element_blank(),
+      axis.text=element_text(size=16),
+      legend.text=element_text(size=16),
+      axis.text.x = element_text(size = 16),
+      axis.title.x = element_blank(),
+      axis.text.y  = element_blank(),
+      axis.title.y = element_blank(),
+      axis.ticks.y = element_blank(),
+      legend.title=element_text(size=16),
+      panel.background = element_rect(fill = "white"), 
+      plot.margin = unit(c(0.2,0.2,0.2,1), 'lines')) +
+      scale_x_discrete(labels=c("3reps" = "3 reps",
+                                "5reps" = "5 reps",
+                                "10reps" = " 10 reps")) +
+    ggtitle("50 sites")
+
+
+
+##100 sites
+sites100 <- MSE_pivlong %>% 
+  separate(Simulation_scenario, c("Nsites", "Nreps")) %>% 
+  filter(Nsites == "100sites") 
+
+sites100$Nreps <- factor(sites100$Nreps, levels = c("3reps", "5reps", "10reps"))
+
+  
+g100 <- ggplot(sites100, aes(x = Nreps, y = value, color = name, fill = name)) +
+  ylim(0,0.13) +
+  scale_color_manual(values = my_pal, 
+                     name = "Occupancy probability",
+                     labels = labs) +
+  scale_fill_manual(values = my_pal, 
+                    name = "Occupancy probability",
+                      labels = labs) + 
+  geom_boxplot(alpha = .5, size = 1, outlier.size = 5) +
+      theme_ipsum() +
+    ylab("MSE") + 
+      theme( 
+      #legend.position="none",
+      plot.title = element_text(size=16, hjust = 0.5),
+      #axis.text.y=element_blank(),
+      axis.text=element_text(size=16),
+      legend.text=element_text(size=16),
+      axis.text.x = element_text(size = 16),
+      axis.title.x = element_blank(),
+      axis.text.y  = element_blank(),
+      axis.title.y = element_blank(),
+      axis.ticks.y = element_blank(),
+      legend.title=element_text(size=16),
+      panel.background = element_rect(fill = "white"), 
+      plot.margin = unit(c(0.2,0.2,0.2,1), 'lines')) +
+      scale_x_discrete(labels=c("3reps" = "3 reps",
+                                "5reps" = "5 reps",
+                                "10reps" = " 10 reps")) +
+    ggtitle("100 sites")
+
+
+
+##150 sites
+sites150 <- MSE_pivlong %>% 
+  separate(Simulation_scenario, c("Nsites", "Nreps")) %>% 
+  filter(Nsites == "150sites") 
+
+sites150$Nreps <- factor(sites150$Nreps, levels = c("3reps", "5reps", "10reps"))
+
+  
+g150 <- ggplot(sites150, aes(x = Nreps, y = value, color = name, fill = name)) +
+  ylim(0,0.13) +
+  scale_color_manual(values = my_pal, 
+                     name = "Occupancy probability",
+                     labels = labs) +
+  scale_fill_manual(values = my_pal, 
+                    name = "Occupancy probability",
+                      labels = labs) + 
+  geom_boxplot(alpha = .5, size = 1, outlier.size = 5) +
+    #ggtitle(expression(paste(Psi^A, " = 0.7"))) +
+  # annotate('text', x = 0.8, y = 0.12,
+  #           label = expression(paste(Psi^A, " = 0.5")), size = 7) +
+    theme_ipsum() +
+    ylab("MSE") + 
+      theme( 
+      #legend.position="none",
+      plot.title = element_text(size=16, hjust = 0.5),
+      #axis.text.y=element_blank(),
+      axis.text=element_text(size=16),
+      legend.text=element_text(size=16),
+      axis.text.x = element_text(size = 16),
+      axis.title.x = element_blank(),
+      axis.text.y = element_text(size = 16),
+      axis.title.y = element_text(size = 18, angle=89.9, vjust = 0.55),
+      legend.title=element_text(size=16),
+      panel.background = element_rect(fill = "white"), 
+      plot.margin = unit(c(0.2,0.2,0.2,1), 'lines')) +
+      scale_x_discrete(labels=c("3reps" = "3 reps",
+                                "5reps" = "5 reps",
+                                "10reps" = " 10 reps")) +
+  ggtitle("150 sites")
+
+
+##200 sites
+sites200 <- MSE_pivlong %>% 
+  separate(Simulation_scenario, c("Nsites", "Nreps")) %>% 
+  filter(Nsites == "200sites") 
+
+sites200$Nreps <- factor(sites200$Nreps, levels = c("3reps", "5reps", "10reps"))
+
+
+g200 <- ggplot(sites200, aes(x = Nreps, y = value, color = name, fill = name)) +
+  ylim(0,0.13) +
+  scale_color_manual(values = my_pal, 
+                     name = "Occupancy probability",
+                     labels = labs) +
+  scale_fill_manual(values = my_pal, 
+                    name = "Occupancy probability",
+                      labels = labs) + 
+  geom_boxplot(alpha = .5, size = 1, outlier.size = 5) +
+      theme_ipsum() +
+    ylab("MSE") + 
+      theme( 
+      #legend.position="none",
+      plot.title = element_text(size=16, hjust = 0.5),
+      #axis.text.y=element_blank(),
+      axis.text=element_text(size=16),
+      legend.text=element_text(size=16),
+      axis.text.x = element_text(size = 16),
+      axis.title.x = element_blank(),
+      axis.text.y  = element_blank(),
+      axis.title.y = element_blank(),
+      axis.ticks.y = element_blank(),
+      legend.title=element_text(size=16),
+      panel.background = element_rect(fill = "white"), 
+      plot.margin = unit(c(0.2,0.2,0.2,1), 'lines')) +
+      scale_x_discrete(labels=c("3reps" = "3 reps",
+                                "5reps" = "5 reps",
+                                "10reps" = " 10 reps")) +
+    ggtitle("200 sites")
+
+
+
+##250 sites
+sites250 <- MSE_pivlong %>% 
+  separate(Simulation_scenario, c("Nsites", "Nreps")) %>% 
+  filter(Nsites == "250sites") 
+
+sites250$Nreps <- factor(sites250$Nreps, levels = c("3reps", "5reps", "10reps"))
+
+  
+g250 <- ggplot(sites250, aes(x = Nreps, y = value, color = name, fill = name)) +
+  ylim(0,0.13) +
+  scale_color_manual(values = my_pal, 
+                     name = "Occupancy probability",
+                     labels = labs) +
+  scale_fill_manual(values = my_pal, 
+                    name = "Occupancy probability",
+                      labels = labs) + 
+  geom_boxplot(alpha = .5, size = 1, outlier.size = 5) +
+      theme_ipsum() +
+    ylab("MSE") + 
+      theme( 
+      #legend.position="none",
+      plot.title = element_text(size=16, hjust = 0.5),
+      #axis.text.y=element_blank(),
+      axis.text=element_text(size=16),
+      legend.text=element_text(size=16),
+      axis.text.x = element_text(size = 16),
+      axis.title.x = element_blank(),
+      axis.text.y  = element_blank(),
+      axis.title.y = element_blank(),
+      axis.ticks.y = element_blank(),
+      legend.title=element_text(size=16),
+      panel.background = element_rect(fill = "white"), 
+      plot.margin = unit(c(0.2,0.2,0.2,1), 'lines')) +
+      scale_x_discrete(labels=c("3reps" = "3 reps",
+                                "5reps" = "5 reps",
+                                "10reps" = " 10 reps")) +
+    ggtitle("250 sites")
+
+
+
+
+##################################################################################
+library(patchwork)
+
+# loadfonts(device = "win")
+comb <- g30 + g50 + g100 +
+  g150 + g200 + g250 & theme(legend.position = "bottom")
+comb + plot_layout(guides="collect")
+
+
+
+ggsave(paste0(here::here("plots", "PlotsAlltogether","MSE_ALL_boxplots_PsiA07_30-250Sites_Nrep_"), gsub("-", "_", Sys.Date()), ".png"), height=8, width=15, units='in', dpi=600, bg = "white")
+
+```
+
+
+## Bias 
+```{r Bias}
+Bias_Pr1.6_Pr2.8_PsiA0.5 <- readRDS(file = (paste0(here::here("output","Bias_Pr1.6_Pr2.8_PsiA0.5_30-250Sites.RDS"))))
+
+Bias_Pr1.6_Pr2.8_PsiA0.7 <- readRDS(file = (paste0(here::here("output","Bias_Pr1.6_Pr2.8_PsiA0.7_30-250Sites.RDS"))))
+
+Bias_pivlong <- Bias_Pr1.6_Pr2.8_PsiA0.5 %>% 
+  #rbind(Bias_Pr1.6_Pr2.8_PsiA0.5, Bias_Pr1.6_Pr2.8_PsiA0.7) %>% 
+  select(Bias_psiA, Bias_psiBA, Bias_psiBa, Predation_level, Simulation_scenario) %>% 
+  pivot_longer(cols = c(Bias_psiA, Bias_psiBA, Bias_psiBa))
+
+my_pal <- rcartocolor::carto_pal(n = 8, name = "Bold")[c(1, 3, 7, 2)]
+
+
+labs = c(expression(Psi^{A}), 
+         expression(Psi^{Ba}), 
+         expression(Psi^{BA}))
+
+##30 sites
+sites30 <- Bias_pivlong %>% 
+  separate(Simulation_scenario, c("Nsites", "Nreps")) %>% 
+  filter(Nsites == "30sites") 
+
+sites30$Nreps <- factor(sites30$Nreps, levels = c("3reps", "5reps", "10reps"))
+  
+g30 <- ggplot(sites30, aes(x = Nreps, y = value, color = name, fill = name)) +
+  ylim(0,0.13) +
+  scale_color_manual(values = my_pal, 
+                     name = "Occupancy probability",
+                     labels = labs) +
+  scale_fill_manual(values = my_pal, 
+                    name = "Occupancy probability",
+                      labels = labs) + 
+  geom_boxplot(alpha = .5, size = 1, outlier.size = 5) +
+    #ggtitle(expression(paste(Psi^A, " = 0.7"))) +
+  # annotate('text', x = 0.8, y = 0.12,
+  #           label = expression(paste(Psi^A, " = 0.5")), size = 7) +
+    theme_ipsum() +
+    ylab("Bias") + 
+      theme( 
+      #legend.position="none",
+      plot.title = element_text(size=16, hjust = 0.5),
+      #axis.text.y=element_blank(),
+      axis.text=element_text(size=16),
+      legend.text=element_text(size=16),
+      axis.text.x = element_text(size = 16),
+      axis.title.x = element_blank(),
+      axis.text.y = element_text(size = 16),
+      axis.title.y = element_text(size = 18, angle=89.9, vjust = 0.55),
+      legend.title=element_text(size=16),
+      panel.background = element_rect(fill = "white"), 
+      plot.margin = unit(c(0.2,0.2,0.2,1), 'lines')) +
+      scale_x_discrete(labels=c("3reps" = "3 reps",
+                                "5reps" = "5 reps",
+                                "10reps" = " 10 reps")) +
+  ggtitle("30 sites")
+
+
+##50 sites
+sites50 <- Bias_pivlong %>% 
+  separate(Simulation_scenario, c("Nsites", "Nreps")) %>% 
+  filter(Nsites == "50sites") 
+
+sites50$Nreps <- factor(sites50$Nreps, levels = c("3reps", "5reps", "10reps"))
+
+g50 <- ggplot(sites50, aes(x = Nreps, y = value, color = name, fill = name)) +
+  ylim(0,0.13) +
+  scale_color_manual(values = my_pal, 
+                     name = "Occupancy probability",
+                     labels = labs) +
+  scale_fill_manual(values = my_pal, 
+                    name = "Occupancy probability",
+                      labels = labs) + 
+  geom_boxplot(alpha = .5, size = 1, outlier.size = 5) +
+      theme_ipsum() +
+    ylab("Bias") + 
+      theme( 
+      #legend.position="none",
+      plot.title = element_text(size=16, hjust = 0.5),
+      #axis.text.y=element_blank(),
+      axis.text=element_text(size=16),
+      legend.text=element_text(size=16),
+      axis.text.x = element_text(size = 16),
+      axis.title.x = element_blank(),
+      axis.text.y  = element_blank(),
+      axis.title.y = element_blank(),
+      axis.ticks.y = element_blank(),
+      legend.title=element_text(size=16),
+      panel.background = element_rect(fill = "white"), 
+      plot.margin = unit(c(0.2,0.2,0.2,1), 'lines')) +
+      scale_x_discrete(labels=c("3reps" = "3 reps",
+                                "5reps" = "5 reps",
+                                "10reps" = " 10 reps")) +
+    ggtitle("50 sites")
+
+
+
+##100 sites
+sites100 <- Bias_pivlong %>% 
+  separate(Simulation_scenario, c("Nsites", "Nreps")) %>% 
+  filter(Nsites == "100sites") 
+
+sites100$Nreps <- factor(sites100$Nreps, levels = c("3reps", "5reps", "10reps"))
+
+  
+g100 <- ggplot(sites100, aes(x = Nreps, y = value, color = name, fill = name)) +
+  ylim(0,0.13) +
+  scale_color_manual(values = my_pal, 
+                     name = "Occupancy probability",
+                     labels = labs) +
+  scale_fill_manual(values = my_pal, 
+                    name = "Occupancy probability",
+                      labels = labs) + 
+  geom_boxplot(alpha = .5, size = 1, outlier.size = 5) +
+      theme_ipsum() +
+    ylab("Bias") + 
+      theme( 
+      #legend.position="none",
+      plot.title = element_text(size=16, hjust = 0.5),
+      #axis.text.y=element_blank(),
+      axis.text=element_text(size=16),
+      legend.text=element_text(size=16),
+      axis.text.x = element_text(size = 16),
+      axis.title.x = element_blank(),
+      axis.text.y  = element_blank(),
+      axis.title.y = element_blank(),
+      axis.ticks.y = element_blank(),
+      legend.title=element_text(size=16),
+      panel.background = element_rect(fill = "white"), 
+      plot.margin = unit(c(0.2,0.2,0.2,1), 'lines')) +
+      scale_x_discrete(labels=c("3reps" = "3 reps",
+                                "5reps" = "5 reps",
+                                "10reps" = " 10 reps")) +
+    ggtitle("100 sites")
+
+
+
+##150 sites
+sites150 <- Bias_pivlong %>% 
+  separate(Simulation_scenario, c("Nsites", "Nreps")) %>% 
+  filter(Nsites == "150sites") 
+
+sites150$Nreps <- factor(sites150$Nreps, levels = c("3reps", "5reps", "10reps"))
+
+  
+g150 <- ggplot(sites150, aes(x = Nreps, y = value, color = name, fill = name)) +
+  ylim(0,0.13) +
+  scale_color_manual(values = my_pal, 
+                     name = "Occupancy probability",
+                     labels = labs) +
+  scale_fill_manual(values = my_pal, 
+                    name = "Occupancy probability",
+                      labels = labs) + 
+  geom_boxplot(alpha = .5, size = 1, outlier.size = 5) +
+    #ggtitle(expression(paste(Psi^A, " = 0.7"))) +
+  # annotate('text', x = 0.8, y = 0.12,
+  #           label = expression(paste(Psi^A, " = 0.5")), size = 7) +
+    theme_ipsum() +
+    ylab("Bias") + 
+      theme( 
+      #legend.position="none",
+      plot.title = element_text(size=16, hjust = 0.5),
+      #axis.text.y=element_blank(),
+      axis.text=element_text(size=16),
+      legend.text=element_text(size=16),
+      axis.text.x = element_text(size = 16),
+      axis.title.x = element_blank(),
+      axis.text.y = element_text(size = 16),
+      axis.title.y = element_text(size = 18, angle=89.9, vjust = 0.55),
+      legend.title=element_text(size=16),
+      panel.background = element_rect(fill = "white"), 
+      plot.margin = unit(c(0.2,0.2,0.2,1), 'lines')) +
+      scale_x_discrete(labels=c("3reps" = "3 reps",
+                                "5reps" = "5 reps",
+                                "10reps" = " 10 reps")) +
+  ggtitle("150 sites")
+
+
+##200 sites
+sites200 <- Bias_pivlong %>% 
+  separate(Simulation_scenario, c("Nsites", "Nreps")) %>% 
+  filter(Nsites == "200sites") 
+
+sites200$Nreps <- factor(sites200$Nreps, levels = c("3reps", "5reps", "10reps"))
+
+
+g200 <- ggplot(sites200, aes(x = Nreps, y = value, color = name, fill = name)) +
+  ylim(0,0.13) +
+  scale_color_manual(values = my_pal, 
+                     name = "Occupancy probability",
+                     labels = labs) +
+  scale_fill_manual(values = my_pal, 
+                    name = "Occupancy probability",
+                      labels = labs) + 
+  geom_boxplot(alpha = .5, size = 1, outlier.size = 5) +
+      theme_ipsum() +
+    ylab("Bias") + 
+      theme( 
+      #legend.position="none",
+      plot.title = element_text(size=16, hjust = 0.5),
+      #axis.text.y=element_blank(),
+      axis.text=element_text(size=16),
+      legend.text=element_text(size=16),
+      axis.text.x = element_text(size = 16),
+      axis.title.x = element_blank(),
+      axis.text.y  = element_blank(),
+      axis.title.y = element_blank(),
+      axis.ticks.y = element_blank(),
+      legend.title=element_text(size=16),
+      panel.background = element_rect(fill = "white"), 
+      plot.margin = unit(c(0.2,0.2,0.2,1), 'lines')) +
+      scale_x_discrete(labels=c("3reps" = "3 reps",
+                                "5reps" = "5 reps",
+                                "10reps" = " 10 reps")) +
+    ggtitle("200 sites")
+
+
+
+##250 sites
+sites250 <- Bias_pivlong %>% 
+  separate(Simulation_scenario, c("Nsites", "Nreps")) %>% 
+  filter(Nsites == "250sites") 
+
+sites250$Nreps <- factor(sites250$Nreps, levels = c("3reps", "5reps", "10reps"))
+
+  
+g250 <- ggplot(sites250, aes(x = Nreps, y = value, color = name, fill = name)) +
+  ylim(0,0.13) +
+  scale_color_manual(values = my_pal, 
+                     name = "Occupancy probability",
+                     labels = labs) +
+  scale_fill_manual(values = my_pal, 
+                    name = "Occupancy probability",
+                      labels = labs) + 
+  geom_boxplot(alpha = .5, size = 1, outlier.size = 5) +
+      theme_ipsum() +
+    ylab("Bias") + 
+      theme( 
+      #legend.position="none",
+      plot.title = element_text(size=16, hjust = 0.5),
+      #axis.text.y=element_blank(),
+      axis.text=element_text(size=16),
+      legend.text=element_text(size=16),
+      axis.text.x = element_text(size = 16),
+      axis.title.x = element_blank(),
+      axis.text.y  = element_blank(),
+      axis.title.y = element_blank(),
+      axis.ticks.y = element_blank(),
+      legend.title=element_text(size=16),
+      panel.background = element_rect(fill = "white"), 
+      plot.margin = unit(c(0.2,0.2,0.2,1), 'lines')) +
+      scale_x_discrete(labels=c("3reps" = "3 reps",
+                                "5reps" = "5 reps",
+                                "10reps" = " 10 reps")) +
+    ggtitle("250 sites")
+
+
+
+
+##################################################################################
+library(patchwork)
+
+# loadfonts(device = "win")
+comb <- g30 + g50 + g100 +
+  g150 + g200 + g250 & theme(legend.position = "bottom")
+comb + plot_layout(guides="collect")
+
+
+
+ggsave(paste0(here::here("plots", "PlotsAlltogether","Bias_ALL_boxplots_PsiA05_30-250Sites_nreps_"), gsub("-", "_", Sys.Date()), ".png"), height=8, width=15, units='in', dpi=600, bg = "white")
+```
+
+## Coefficient of variation 
+```{r CV}
+
+CV_PsiA0.5 <- readRDS(paste0(here::here("output","CV_Pr1.6_Pr2.8_PsiA0.5_30-250SitesPsiA0.5.RDS")))
+CV_PsiA0.7 <- readRDS(paste0(here::here("output","CV_Pr1.6_Pr2.8_PsiA0.7_30-250SitesPsiA0.7.RDS")))
+
+############################################################################################# 
+CV_pivlong <- CV_PsiA0.5 %>% 
+  select(CV_psiA, CV_psiBA, CV_psiBa, Predation_level, Simulation_scenario) %>% 
+  pivot_longer(cols = c(CV_psiA, CV_psiBA, CV_psiBa))
+
+my_pal <- rcartocolor::carto_pal(n = 8, name = "Bold")[c(1, 3, 7, 2)]
+
+
+labs = c(expression(Psi^{A}), 
+         expression(Psi^{Ba}), 
+         expression(Psi^{BA}))
+  
+  
+##30 sites
+sites30 <- CV_pivlong %>% 
+  separate(Simulation_scenario, c("Nsites", "Nreps")) %>% 
+  filter(Nsites == "30sites") 
+
+sites30$Nreps <- factor(sites30$Nreps, levels = c("3reps", "5reps", "10reps"))
+  
+g30 <- ggplot(sites30, aes(x = Nreps, y = value, color = name, fill = name)) +
+  ylim(0,max(sites30$value)) +
+  scale_color_manual(values = my_pal, 
+                     name = "Occupancy probability",
+                     labels = labs) +
+  scale_fill_manual(values = my_pal, 
+                    name = "Occupancy probability",
+                      labels = labs) + 
+  geom_boxplot(alpha = .5, size = 1, outlier.size = 5) +
+    #ggtitle(expression(paste(Psi^A, " = 0.7"))) +
+  # annotate('text', x = 0.8, y = 0.12,
+  #           label = expression(paste(Psi^A, " = 0.5")), size = 7) +
+    theme_ipsum() +
+    ylab("CV") + 
+      theme( 
+      #legend.position="none",
+      plot.title = element_text(size=16, hjust = 0.5),
+      #axis.text.y=element_blank(),
+      axis.text=element_text(size=16),
+      legend.text=element_text(size=16),
+      axis.text.x = element_text(size = 16),
+      axis.title.x = element_blank(),
+      axis.text.y = element_text(size = 16),
+      axis.title.y = element_text(size = 18, angle=89.9, vjust = 0.55),
+      legend.title=element_text(size=16),
+      panel.background = element_rect(fill = "white"), 
+      plot.margin = unit(c(0.2,0.2,0.2,1), 'lines')) +
+      scale_x_discrete(labels=c("3reps" = "3 reps",
+                                "5reps" = "5 reps",
+                                "10reps" = " 10 reps")) +
+  ggtitle("30 sites")
+
+
+##50 sites
+sites50 <- CV_pivlong %>% 
+  separate(Simulation_scenario, c("Nsites", "Nreps")) %>% 
+  filter(Nsites == "50sites") 
+
+sites50$Nreps <- factor(sites50$Nreps, levels = c("3reps", "5reps", "10reps"))
+
+g50 <- ggplot(sites50, aes(x = Nreps, y = value, color = name, fill = name)) +
+  ylim(0,max(sites30$value)) +
+  scale_color_manual(values = my_pal, 
+                     name = "Occupancy probability",
+                     labels = labs) +
+  scale_fill_manual(values = my_pal, 
+                    name = "Occupancy probability",
+                      labels = labs) + 
+  geom_boxplot(alpha = .5, size = 1, outlier.size = 5) +
+      theme_ipsum() +
+    ylab("CV") + 
+      theme( 
+      #legend.position="none",
+      plot.title = element_text(size=16, hjust = 0.5),
+      #axis.text.y=element_blank(),
+      axis.text=element_text(size=16),
+      legend.text=element_text(size=16),
+      axis.text.x = element_text(size = 16),
+      axis.title.x = element_blank(),
+      axis.text.y  = element_blank(),
+      axis.title.y = element_blank(),
+      axis.ticks.y = element_blank(),
+      legend.title=element_text(size=16),
+      panel.background = element_rect(fill = "white"), 
+      plot.margin = unit(c(0.2,0.2,0.2,1), 'lines')) +
+      scale_x_discrete(labels=c("3reps" = "3 reps",
+                                "5reps" = "5 reps",
+                                "10reps" = " 10 reps")) +
+    ggtitle("50 sites")
+
+
+
+##100 sites
+sites100 <- CV_pivlong %>% 
+  separate(Simulation_scenario, c("Nsites", "Nreps")) %>% 
+  filter(Nsites == "100sites") 
+
+sites100$Nreps <- factor(sites100$Nreps, levels = c("3reps", "5reps", "10reps"))
+
+  
+g100 <- ggplot(sites100, aes(x = Nreps, y = value, color = name, fill = name)) +
+  ylim(0,max(sites30$value)) +
+  scale_color_manual(values = my_pal, 
+                     name = "Occupancy probability",
+                     labels = labs) +
+  scale_fill_manual(values = my_pal, 
+                    name = "Occupancy probability",
+                      labels = labs) + 
+  geom_boxplot(alpha = .5, size = 1, outlier.size = 5) +
+      theme_ipsum() +
+    ylab("CV") + 
+      theme( 
+      #legend.position="none",
+      plot.title = element_text(size=16, hjust = 0.5),
+      #axis.text.y=element_blank(),
+      axis.text=element_text(size=16),
+      legend.text=element_text(size=16),
+      axis.text.x = element_text(size = 16),
+      axis.title.x = element_blank(),
+      axis.text.y  = element_blank(),
+      axis.title.y = element_blank(),
+      axis.ticks.y = element_blank(),
+      legend.title=element_text(size=16),
+      panel.background = element_rect(fill = "white"), 
+      plot.margin = unit(c(0.2,0.2,0.2,1), 'lines')) +
+      scale_x_discrete(labels=c("3reps" = "3 reps",
+                                "5reps" = "5 reps",
+                                "10reps" = " 10 reps")) +
+    ggtitle("100 sites")
+
+
+
+##150 sites
+sites150 <- CV_pivlong %>% 
+  separate(Simulation_scenario, c("Nsites", "Nreps")) %>% 
+  filter(Nsites == "150sites") 
+
+sites150$Nreps <- factor(sites150$Nreps, levels = c("3reps", "5reps", "10reps"))
+
+  
+g150 <- ggplot(sites150, aes(x = Nreps, y = value, color = name, fill = name)) +
+  ylim(0,max(sites30$value)) +
+  scale_color_manual(values = my_pal, 
+                     name = "Occupancy probability",
+                     labels = labs) +
+  scale_fill_manual(values = my_pal, 
+                    name = "Occupancy probability",
+                      labels = labs) + 
+  geom_boxplot(alpha = .5, size = 1, outlier.size = 5) +
+    #ggtitle(expression(paste(Psi^A, " = 0.7"))) +
+  # annotate('text', x = 0.8, y = 0.12,
+  #           label = expression(paste(Psi^A, " = 0.5")), size = 7) +
+    theme_ipsum() +
+    ylab("CV") + 
+      theme( 
+      #legend.position="none",
+      plot.title = element_text(size=16, hjust = 0.5),
+      #axis.text.y=element_blank(),
+      axis.text=element_text(size=16),
+      legend.text=element_text(size=16),
+      axis.text.x = element_text(size = 16),
+      axis.title.x = element_blank(),
+      axis.text.y = element_text(size = 16),
+      axis.title.y = element_text(size = 18, angle=89.9, vjust = 0.55),
+      legend.title=element_text(size=16),
+      panel.background = element_rect(fill = "white"), 
+      plot.margin = unit(c(0.2,0.2,0.2,1), 'lines')) +
+      scale_x_discrete(labels=c("3reps" = "3 reps",
+                                "5reps" = "5 reps",
+                                "10reps" = " 10 reps")) +
+  ggtitle("150 sites")
+
+
+##200 sites
+sites200 <- CV_pivlong %>% 
+  separate(Simulation_scenario, c("Nsites", "Nreps")) %>% 
+  filter(Nsites == "200sites") 
+
+sites200$Nreps <- factor(sites200$Nreps, levels = c("3reps", "5reps", "10reps"))
+
+
+g200 <- ggplot(sites200, aes(x = Nreps, y = value, color = name, fill = name)) +
+  ylim(0,max(sites30$value)) +
+  scale_color_manual(values = my_pal, 
+                     name = "Occupancy probability",
+                     labels = labs) +
+  scale_fill_manual(values = my_pal, 
+                    name = "Occupancy probability",
+                      labels = labs) + 
+  geom_boxplot(alpha = .5, size = 1, outlier.size = 5) +
+      theme_ipsum() +
+    ylab("CV") + 
+      theme( 
+      #legend.position="none",
+      plot.title = element_text(size=16, hjust = 0.5),
+      #axis.text.y=element_blank(),
+      axis.text=element_text(size=16),
+      legend.text=element_text(size=16),
+      axis.text.x = element_text(size = 16),
+      axis.title.x = element_blank(),
+      axis.text.y  = element_blank(),
+      axis.title.y = element_blank(),
+      axis.ticks.y = element_blank(),
+      legend.title=element_text(size=16),
+      panel.background = element_rect(fill = "white"), 
+      plot.margin = unit(c(0.2,0.2,0.2,1), 'lines')) +
+      scale_x_discrete(labels=c("3reps" = "3 reps",
+                                "5reps" = "5 reps",
+                                "10reps" = " 10 reps")) +
+    ggtitle("200 sites")
+
+
+
+##250 sites
+sites250 <- CV_pivlong %>% 
+  separate(Simulation_scenario, c("Nsites", "Nreps")) %>% 
+  filter(Nsites == "250sites") 
+
+sites250$Nreps <- factor(sites250$Nreps, levels = c("3reps", "5reps", "10reps"))
+
+  
+g250 <- ggplot(sites250, aes(x = Nreps, y = value, color = name, fill = name)) +
+  ylim(0,max(sites30$value)) +
+  scale_color_manual(values = my_pal, 
+                     name = "Occupancy probability",
+                     labels = labs) +
+  scale_fill_manual(values = my_pal, 
+                    name = "Occupancy probability",
+                      labels = labs) + 
+  geom_boxplot(alpha = .5, size = 1, outlier.size = 5) +
+      theme_ipsum() +
+    ylab("CV") + 
+      theme( 
+      #legend.position="none",
+      plot.title = element_text(size=16, hjust = 0.5),
+      #axis.text.y=element_blank(),
+      axis.text=element_text(size=16),
+      legend.text=element_text(size=16),
+      axis.text.x = element_text(size = 16),
+      axis.title.x = element_blank(),
+      axis.text.y  = element_blank(),
+      axis.title.y = element_blank(),
+      axis.ticks.y = element_blank(),
+      legend.title=element_text(size=16),
+      panel.background = element_rect(fill = "white"), 
+      plot.margin = unit(c(0.2,0.2,0.2,1), 'lines')) +
+      scale_x_discrete(labels=c("3reps" = "3 reps",
+                                "5reps" = "5 reps",
+                                "10reps" = " 10 reps")) +
+    ggtitle("250 sites")
+
+
+
+
+##################################################################################
+library(patchwork)
+
+# loadfonts(device = "win")
+comb <- g30 + g50 + g100 +
+  g150 + g200 + g250 & theme(legend.position = "bottom")
+comb + plot_layout(guides="collect")
+
+
+
+ggsave(paste0(here::here("plots", "PlotsAlltogether","CV_ALL_boxplots_PsiA05_30-250Sites_PredLevel_"), gsub("-", "_", Sys.Date()), ".png"), height=8, width=15, units='in', dpi=600, bg = "white")
+
+
+
+```

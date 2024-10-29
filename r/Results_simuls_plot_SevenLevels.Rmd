@@ -1,0 +1,1522 @@
+---
+title: "Results_simuls_plots_7Levels_Mason"
+author: "Julie Louvrier, Olivier gimenez, Mason Fidino"
+date: "10/17/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = "")
+rm(list=ls())
+getwd()
+```
+
+
+# load packages and working directory
+
+```{r packages}
+#setwd(here::here())
+library(tidyverse)
+library(hrbrthemes)
+library(viridis)
+library(ggpubr)
+
+```
+
+# load data 
+```{r data}
+### PsiA = 0.5
+results_30N3J100Sims_PsiA0.5 <- readRDS(here::here("output", "results_7Levels_sims_Pr0.6_0.8_PsiA0.5_30N3JPr1.1_Pr2.1100Sims.RDS"))
+results_50N3J100Sims_PsiA0.5 <- readRDS(here::here("output", "results_7Levels_sims_Pr0.6_0.8_PsiA0.5_50N3JPr1.1_Pr2.1100Sims.RDS"))
+results_100N3J100Sims_PsiA0.5 <- readRDS(here::here("output", "results_7Levels_sims_Pr0.6_0.8_PsiA0.5_100N3JPr1.1_Pr2.1100Sims.RDS"))
+results_30N5J100Sims_PsiA0.5 <- readRDS(here::here("output", "results_7Levels_sims_Pr0.6_0.8_PsiA0.5_30N5JPr1.1_Pr2.1100Sims.RDS"))
+results_50N5J100Sims_PsiA0.5 <- readRDS(here::here("output", "results_7Levels_sims_Pr0.6_0.8_PsiA0.5_50N5JPr1.1_Pr2.1100Sims.RDS"))
+results_100N5J100Sims_PsiA0.5 <- readRDS(here::here("output", "results_7Levels_sims_Pr0.6_0.8_PsiA0.5_100N5JPr1.1_Pr2.1100Sims.RDS"))
+results_30N10J100Sims_PsiA0.5 <- readRDS(here::here("output", "results_7Levels_sims_Pr0.6_0.8_PsiA0.5_30N10JPr1.1_Pr2.1100Sims.RDS"))
+results_50N10J100Sims_PsiA0.5 <- readRDS(here::here("output", "results_7Levels_sims_Pr0.6_0.8_PsiA0.5_50N10JPr1.1_Pr2.1100Sims.RDS"))
+results_100N10J100Sims_PsiA0.5 <- readRDS(here::here("output", "results_7Levels_sims_Pr0.6_0.8_PsiA0.5_100N10JPr1.1_Pr2.1100Sims.RDS"))
+
+
+results_150N3J100Sims_PsiA0.5 <- readRDS(here::here("output", "results_7Levels_sims_Pr0.6_0.8_PsiA0.5_150N3JPr1.1_Pr2.1100Sims.RDS"))
+results_200N3J100Sims_PsiA0.5 <- readRDS(here::here("output", "results_7Levels_sims_Pr0.6_0.8_PsiA0.5_200N3JPr1.1_Pr2.1100Sims.RDS"))
+results_250N3J100Sims_PsiA0.5 <- readRDS(here::here("output", "results_7Levels_sims_Pr0.6_0.8_PsiA0.5_250N3JPr1.1_Pr2.1100Sims.RDS"))
+results_150N5J100Sims_PsiA0.5 <- readRDS(here::here("output", "results_7Levels_sims_Pr0.6_0.8_PsiA0.5_150N5JPr1.1_Pr2.1100Sims.RDS"))
+results_200N5J100Sims_PsiA0.5 <- readRDS(here::here("output", "results_7Levels_sims_Pr0.6_0.8_PsiA0.5_200N5JPr1.1_Pr2.1100Sims.RDS"))
+results_250N5J100Sims_PsiA0.5 <- readRDS(here::here("output", "results_7Levels_sims_Pr0.6_0.8_PsiA0.5_250N5JPr1.1_Pr2.1100Sims.RDS"))
+results_150N10J100Sims_PsiA0.5 <- readRDS(here::here("output", "results_7Levels_sims_Pr0.6_0.8_PsiA0.5_150N10JPr1.1_Pr2.1100Sims.RDS"))
+results_200N10J100Sims_PsiA0.5 <- readRDS(here::here("output", "results_7Levels_sims_Pr0.6_0.8_PsiA0.5_200N10JPr1.1_Pr2.1100Sims.RDS"))
+results_250N10J100Sims_PsiA0.5 <- readRDS(here::here("output", "results_7Levels_sims_Pr0.6_0.8_PsiA0.5_250N10JPr1.1_Pr2.1100Sims.RDS"))
+
+nsim = 100
+
+```
+
+
+
+# extraction of the delta AIC 
+```{r AIC}
+#extracting the info 
+
+extractAIC <- function(data) {
+  
+  none <- data[[1]]
+  low1 <- data[[2]]
+  low2 <- data[[3]]
+  low3 <- data[[4]]
+  low4 <- data[[5]]
+  low5 <- data[[6]]
+  high <- data[[7]]
+  
+  ##None level ----------------------------------------------------
+  #creating a simplier list
+  resultsAllSimsNone <- list()
+  
+  #filling up the list
+  for(i in 1:length(none)){ 
+    resultsAllSimsNone[[i]] <- (none[[i]][[2]])
+  }
+  
+  #unlisting the thing
+  Resultsnone <- do.call(rbind.data.frame, resultsAllSimsNone) %>%
+    mutate(PredationLevel = "none") 
+  
+  ##low level 1 ----------------------------------------------------
+  #creating a simplier list
+  resultsAllSimslow1 <- list()
+  
+  #filling up the list
+  for(i in 1:length(low1)){ 
+    resultsAllSimslow1[[i]] <- (low1[[i]][[2]])
+  }
+  
+  #unlisting the thing
+  Resultslow1 <- do.call(rbind.data.frame, resultsAllSimslow1) %>%
+    mutate(PredationLevel = "low") 
+  
+  ##low level 2 ----------------------------------------------------
+  #creating a simplier list
+  resultsAllSimslow2 <- list()
+  
+  #filling up the list
+  for(i in 1:length(low2)){ 
+    resultsAllSimslow2[[i]] <- (low2[[i]][[2]])
+  }
+  
+  #unlisting the thing
+  Resultslow2 <- do.call(rbind.data.frame, resultsAllSimslow2) %>%
+    mutate(PredationLevel = "low-medium") 
+  
+  ##low level 3 ----------------------------------------------------
+  #creating a simplier list
+  resultsAllSimslow3 <- list()
+  
+  #filling up the list
+  for(i in 1:length(low3)){ 
+    resultsAllSimslow3[[i]] <- (low3[[i]][[2]])
+  }
+  
+  #unlisting the thing
+  Resultslow3 <- do.call(rbind.data.frame, resultsAllSimslow3) %>%
+    mutate(PredationLevel = "medium") 
+  
+  
+  ##low level 4 ----------------------------------------------------
+  #creating a simplier list
+  resultsAllSimslow4 <- list()
+  
+  #filling up the list
+  for(i in 1:length(low4)){ 
+    resultsAllSimslow4[[i]] <- (low4[[i]][[2]])
+  }
+  #unlisting the thing
+  Resultslow4 <- do.call(rbind.data.frame, resultsAllSimslow4) %>%
+    mutate(PredationLevel = "high-medium") 
+  
+  
+  ##low level 5 ----------------------------------------------------
+  #creating a simplier list
+  resultsAllSimslow5 <- list()
+  
+  #filling up the list
+  for(i in 1:length(low5)){ 
+    resultsAllSimslow5[[i]] <- (low5[[i]][[2]])
+  }
+  
+  #unlisting the thing
+  Resultslow5 <- do.call(rbind.data.frame, resultsAllSimslow5) %>%
+    mutate(PredationLevel = "low-high") 
+  
+  
+  ##high level ----------------------------------------------------
+  #creating a simplier list
+  resultsAllSimshigh <- list()
+  
+  #filling up the list
+  for(i in 1:length(high)){ 
+    resultsAllSimshigh[[i]] <- (high[[i]][[2]])
+  }
+  
+  #unlisting the thing
+  Resultshigh <- do.call(rbind.data.frame, resultsAllSimshigh) %>%
+    mutate(PredationLevel = "high")
+  
+  results <- rbind(Resultsnone, Resultslow1, Resultslow2, Resultslow3, 
+                   Resultslow4, Resultslow5, Resultshigh) %>%
+    mutate(deltaAIC = AIC_without - AIC_with) 
+  
+  
+  results$PredationLevel <- factor(results$PredationLevel , 
+                                   levels=c("none", "low", "low-medium", "medium", "high-medium",
+                                            "low-high", "high"))
+  
+  
+  return(results)
+  
+}
+
+dataframe_AIC_30N3J100Sims_PsiA0.5 <- extractAIC(results_30N3J100Sims_PsiA0.5) %>% 
+  mutate(nrep = 3, nsites = 30)
+dataframe_AIC_50N3J100Sims_PsiA0.5 <- extractAIC(results_50N3J100Sims_PsiA0.5)%>% 
+  mutate(nrep = 3, nsites = 50)
+dataframe_AIC_100N3J100Sims_PsiA0.5 <- extractAIC(results_100N3J100Sims_PsiA0.5)%>% 
+  mutate(nrep = 3, nsites = 100)
+
+dataframe_AIC_30N5J100Sims_PsiA0.5 <- extractAIC(results_30N5J100Sims_PsiA0.5)%>% 
+  mutate(nrep = 5, nsites = 30)
+dataframe_AIC_50N5J100Sims_PsiA0.5 <- extractAIC(results_50N5J100Sims_PsiA0.5)%>% 
+  mutate(nrep = 5, nsites = 50)
+dataframe_AIC_100N5J100Sims_PsiA0.5 <- extractAIC(results_100N5J100Sims_PsiA0.5)%>% 
+  mutate(nrep = 5, nsites = 100)
+
+dataframe_AIC_30N10J100Sims_PsiA0.5 <- extractAIC(results_30N10J100Sims_PsiA0.5)%>% 
+  mutate(nrep = 10, nsites = 30)
+dataframe_AIC_50N10J100Sims_PsiA0.5 <- extractAIC(results_50N10J100Sims_PsiA0.5)%>% 
+  mutate(nrep = 10, nsites = 50)
+dataframe_AIC_100N10J100Sims_PsiA0.5 <- extractAIC(results_100N10J100Sims_PsiA0.5)%>% 
+  mutate(nrep = 10, nsites = 100)
+
+
+dataframe_AIC_150N3J100Sims_PsiA0.5 <- extractAIC(results_150N3J100Sims_PsiA0.5) %>% 
+  mutate(nrep = 3, nsites = 150)
+dataframe_AIC_200N3J100Sims_PsiA0.5 <- extractAIC(results_200N3J100Sims_PsiA0.5)%>% 
+  mutate(nrep = 3, nsites = 200)
+dataframe_AIC_250N3J100Sims_PsiA0.5 <- extractAIC(results_250N3J100Sims_PsiA0.5)%>% 
+  mutate(nrep = 3, nsites = 250)
+
+dataframe_AIC_150N5J100Sims_PsiA0.5 <- extractAIC(results_150N5J100Sims_PsiA0.5)%>% 
+  mutate(nrep = 5, nsites = 150)
+dataframe_AIC_200N5J100Sims_PsiA0.5 <- extractAIC(results_200N5J100Sims_PsiA0.5)%>% 
+  mutate(nrep = 5, nsites = 200)
+dataframe_AIC_250N5J100Sims_PsiA0.5 <- extractAIC(results_250N5J100Sims_PsiA0.5)%>% 
+  mutate(nrep = 5, nsites = 250)
+
+dataframe_AIC_150N10J100Sims_PsiA0.5 <- extractAIC(results_150N10J100Sims_PsiA0.5)%>% 
+  mutate(nrep = 10, nsites = 150)
+dataframe_AIC_200N10J100Sims_PsiA0.5 <- extractAIC(results_200N10J100Sims_PsiA0.5)%>% 
+  mutate(nrep = 10, nsites = 200)
+dataframe_AIC_250N10J100Sims_PsiA0.5 <- extractAIC(results_250N10J100Sims_PsiA0.5)%>% 
+  mutate(nrep = 10, nsites = 250)
+
+```
+
+# proportion of delta AIC > 2 
+```{r delta AIC proportion}
+propAIC <- function(data, N, J) {
+  Sims_binary <- data %>%mutate(above2 = ifelse(deltaAIC >2, 1,0))
+  prop <- data.frame(table(Sims_binary$above2, Sims_binary$PredationLevel))
+  names(prop) <- c("above2", "PredLevel", "Freq")
+  
+  lengthPredLevels <- data.frame(table(Sims_binary$PredationLevel))
+  names(lengthPredLevels) <- c("PredLevel", "LengthPred")
+  
+  finalTable <- inner_join(prop, lengthPredLevels, by = "PredLevel") %>% 
+    filter(above2 ==1) %>%
+    mutate(Simulation_scenario = paste0(N, "sites_", J, "reps"))
+  
+  return(finalTable)
+}
+
+prop30N3J <- propAIC(dataframe_AIC_30N3J100Sims_PsiA0.5, 30, 3)
+prop50N3J <- propAIC(dataframe_AIC_50N3J100Sims_PsiA0.5, 50, 3)
+prop100N3J <- propAIC(dataframe_AIC_100N3J100Sims_PsiA0.5, 100, 3)
+prop30N5J <- propAIC(dataframe_AIC_30N5J100Sims_PsiA0.5, 30, 5)
+prop50N5J <- propAIC(dataframe_AIC_50N5J100Sims_PsiA0.5, 50, 5)
+prop100N5J <- propAIC(dataframe_AIC_100N5J100Sims_PsiA0.5, 100, 5)
+prop30N10J <- propAIC(dataframe_AIC_30N10J100Sims_PsiA0.5, 30, 10)
+prop50N10J <- propAIC(dataframe_AIC_50N10J100Sims_PsiA0.5, 50, 10)
+prop100N10J <- propAIC(dataframe_AIC_100N10J100Sims_PsiA0.5, 100, 10)
+
+
+prop150N3J <- propAIC(dataframe_AIC_150N3J100Sims_PsiA0.5, 150, 3)
+prop200N3J <- propAIC(dataframe_AIC_200N3J100Sims_PsiA0.5, 200, 3)
+prop250N3J <- propAIC(dataframe_AIC_250N3J100Sims_PsiA0.5, 250, 3)
+prop150N5J <- propAIC(dataframe_AIC_150N5J100Sims_PsiA0.5, 150, 5)
+prop200N5J <- propAIC(dataframe_AIC_200N5J100Sims_PsiA0.5, 200, 5)
+prop250N5J <- propAIC(dataframe_AIC_250N5J100Sims_PsiA0.5, 250, 5)
+prop150N10J <- propAIC(dataframe_AIC_150N10J100Sims_PsiA0.5, 150, 10)
+prop200N10J <- propAIC(dataframe_AIC_200N10J100Sims_PsiA0.5, 200, 10)
+prop250N10J <- propAIC(dataframe_AIC_250N10J100Sims_PsiA0.5, 250, 10)
+
+proportionDeltaAIC <- rbind(prop30N3J, prop50N3J, prop100N3J,
+                            prop30N5J, prop50N5J, prop100N5J,
+                            prop30N10J, prop50N10J, prop100N10J,
+                            prop150N3J, prop200N3J, prop250N3J,
+                            prop150N5J, prop200N5J, prop250N5J,
+                            prop150N10J, prop200N10J, prop250N10J)
+
+
+proportionDeltaAIC$Simulation_scenario <- factor(proportionDeltaAIC$Simulation_scenario,
+                                                 levels = c("30sites_3reps","30sites_5reps","30sites_10reps","50sites_3reps","50sites_5reps","50sites_10reps","100sites_3reps","100sites_5reps","100sites_10reps","150sites_3reps","150sites_5reps","150sites_10reps","200sites_3reps","200sites_5reps","200sites_10reps","250sites_3reps","250sites_5reps","250sites_10reps"),
+                                                 ordered = TRUE)
+
+proportionDeltaAIC_prop <- proportionDeltaAIC %>% mutate(proportion = proportionDeltaAIC$Freq /proportionDeltaAIC$LengthPred)
+
+saveRDS(proportionDeltaAIC_prop, file = (paste0(here::here("output", "proportionDeltaAIC_prop_Pr1.6_Pr2.8_PsiA0.5_30-250sites.RDS"))))
+
+```
+
+
+
+
+# MSE 
+
+```{r MSE}
+extractData_MSE <- function(data) {
+  
+  none <- data[[1]]
+  low1 <- data[[2]]
+  low2 <- data[[3]]
+  low3 <- data[[4]]
+  low4 <- data[[5]]
+  low5 <- data[[6]]
+  high <- data[[7]]
+  
+  ##None level----------------------------
+  #creating a simplier list
+  resultsAllSimsNone <- list()
+  resultsAllSimsNone_simulated <- list()
+  #filling up the list ------------------------------------------------
+  for(i in 1:length(none)){ 
+    resultsAllSimsNone[[i]] <- (none[[i]][[1]])
+    resultsAllSimsNone_simulated[[i]] <- (none[[i]][[3]])
+  }
+  
+  #unlisting the thing
+  #estimated
+  ##psiA
+  Resultsnone_psiA <- do.call(rbind.data.frame, resultsAllSimsNone) %>%
+    filter(param == "psiA")
+  MSE_none_psiA <- mean((Resultsnone_psiA$true - Resultsnone_psiA$mod_with)^2, na.rm = T)
+  
+  ##psiBA
+  Resultsnone_psiBA <- do.call(rbind.data.frame, resultsAllSimsNone) %>%
+    filter(param == "psiBA")
+  MSE_none_psiBA <- mean((Resultsnone_psiBA$true - Resultsnone_psiBA$mod_with)^2, na.rm = T)
+  
+  ##psiBa
+  Resultsnone_psiBa <- do.call(rbind.data.frame, resultsAllSimsNone) %>%
+    filter(param == "psiBa")
+  MSE_none_psiBa <- mean((Resultsnone_psiBa$true - Resultsnone_psiBa$mod_with)^2, na.rm = T)
+  
+  #simulated 
+  ##psiA
+  Resultsnone_psiA_vs_simulated <- do.call(rbind.data.frame, resultsAllSimsNone_simulated) %>%
+    filter(names == "psiA")
+  MSE_none_psiA_vs_simulated <- mean((Resultsnone_psiA_vs_simulated$freq - Resultsnone_psiA$mod_with)^2, na.rm = T)
+  
+  ##psiBA
+  Resultsnone_psiBA_vs_simulated <- do.call(rbind.data.frame, resultsAllSimsNone_simulated) %>%
+    filter(names == "psiBA")
+  MSE_none_psiBA_vs_simulated <- mean((Resultsnone_psiBA_vs_simulated$freq - Resultsnone_psiBA$mod_with)^2, na.rm = T)
+  
+  ##psiBa
+  Resultsnone_psiBa_vs_simulated <- do.call(rbind.data.frame, resultsAllSimsNone_simulated) %>%
+    filter(names == "psiBa")
+  MSE_none_psiBa_vs_simulated <- mean((Resultsnone_psiBa_vs_simulated$freq - Resultsnone_psiBa$mod_with)^2, na.rm = T)
+  
+  MSE_none <- data.frame("MSE_psiA" = MSE_none_psiA, 
+                         "MSE_psiA_vs_simulated" = MSE_none_psiA_vs_simulated,
+                         "MSE_psiBA" = MSE_none_psiBA,
+                         "MSE_psiBA_vs_simulated" = MSE_none_psiBA_vs_simulated,
+                         "MSE_psiBa" = MSE_none_psiBa, 
+                         "MSE_psiBa_vs_simulated" = MSE_none_psiBa_vs_simulated)
+  
+  MSE_none_level <- MSE_none %>% mutate(Predation_level = "none")
+  
+  ##low level 1 ------------------------------------------------
+  #creating a simplier list
+  resultsAllSimslow1 <- list()
+  resultsAllSimslow1_simulated <- list()
+  #filling up the list ------------------------------------------------
+  for(i in 1:length(low1)){ 
+    resultsAllSimslow1[[i]] <- (low1[[i]][[1]])
+    resultsAllSimslow1_simulated[[i]] <- (low1[[i]][[3]])
+  }
+  
+  #unlisting the thing
+  #estimated
+  ##psiA
+  Resultslow1_psiA <- do.call(rbind.data.frame, resultsAllSimslow1) %>%
+    filter(param == "psiA")
+  MSE_low1_psiA <- mean((Resultslow1_psiA$true - Resultslow1_psiA$mod_with)^2, na.rm = T)
+  
+  ##psiBA
+  Resultslow1_psiBA <- do.call(rbind.data.frame, resultsAllSimslow1) %>%
+    filter(param == "psiBA")
+  MSE_low1_psiBA <- mean((Resultslow1_psiBA$true - Resultslow1_psiBA$mod_with)^2, na.rm = T)
+  
+  ##psiBa
+  Resultslow1_psiBa <- do.call(rbind.data.frame, resultsAllSimslow1) %>%
+    filter(param == "psiBa")
+  MSE_low1_psiBa <- mean((Resultslow1_psiBa$true - Resultslow1_psiBa$mod_with)^2, na.rm = T)
+  
+  #simulated 
+  ##psiA
+  Resultslow1_psiA_vs_simulated <- do.call(rbind.data.frame, resultsAllSimslow1_simulated) %>%
+    filter(names == "psiA")
+  MSE_low1_psiA_vs_simulated <- mean((Resultslow1_psiA_vs_simulated$freq - Resultslow1_psiA$mod_with)^2, na.rm = T)
+  
+  ##psiBA
+  Resultslow1_psiBA_vs_simulated <- do.call(rbind.data.frame, resultsAllSimslow1_simulated) %>%
+    filter(names == "psiBA")
+  MSE_low1_psiBA_vs_simulated <- mean((Resultslow1_psiBA_vs_simulated$freq - Resultslow1_psiBA$mod_with)^2, na.rm = T)
+  
+  ##psiBa
+  Resultslow1_psiBa_vs_simulated <- do.call(rbind.data.frame, resultsAllSimslow1_simulated) %>%
+    filter(names == "psiBa")
+  MSE_low1_psiBa_vs_simulated <- mean((Resultslow1_psiBa_vs_simulated$freq - Resultslow1_psiBa$mod_with)^2, na.rm = T)
+  
+  MSE_low1 <- data.frame("MSE_psiA" = MSE_low1_psiA, 
+                         "MSE_psiA_vs_simulated" = MSE_low1_psiA_vs_simulated,
+                         "MSE_psiBA" = MSE_low1_psiBA,
+                         "MSE_psiBA_vs_simulated" = MSE_low1_psiBA_vs_simulated,
+                         "MSE_psiBa" = MSE_low1_psiBa, 
+                         "MSE_psiBa_vs_simulated" = MSE_low1_psiBa_vs_simulated)
+  
+  MSE_low1_level <- MSE_low1 %>% mutate(Predation_level = "low")
+  
+  ##low level 2 ------------------------------------------------
+  #creating a simplier list
+  resultsAllSimslow2 <- list()
+  resultsAllSimslow2_simulated <- list()
+  #filling up the list ------------------------------------------------
+  for(i in 1:length(low2)){ 
+    resultsAllSimslow2[[i]] <- (low2[[i]][[1]])
+    resultsAllSimslow2_simulated[[i]] <- (low2[[i]][[3]])
+  }
+  
+  #unlisting the thing
+  #estimated
+  ##psiA
+  Resultslow2_psiA <- do.call(rbind.data.frame, resultsAllSimslow2) %>%
+    filter(param == "psiA")
+  MSE_low2_psiA <- mean((Resultslow2_psiA$true - Resultslow2_psiA$mod_with)^2, na.rm = T)
+  
+  ##psiBA
+  Resultslow2_psiBA <- do.call(rbind.data.frame, resultsAllSimslow2) %>%
+    filter(param == "psiBA")
+  MSE_low2_psiBA <- mean((Resultslow2_psiBA$true - Resultslow2_psiBA$mod_with)^2, na.rm = T)
+  
+  ##psiBa
+  Resultslow2_psiBa <- do.call(rbind.data.frame, resultsAllSimslow2) %>%
+    filter(param == "psiBa")
+  MSE_low2_psiBa <- mean((Resultslow2_psiBa$true - Resultslow2_psiBa$mod_with)^2, na.rm = T)
+  
+  #simulated 
+  ##psiA
+  Resultslow2_psiA_vs_simulated <- do.call(rbind.data.frame, resultsAllSimslow2_simulated) %>%
+    filter(names == "psiA")
+  MSE_low2_psiA_vs_simulated <- mean((Resultslow2_psiA_vs_simulated$freq - Resultslow2_psiA$mod_with)^2, na.rm = T)
+  
+  ##psiBA
+  Resultslow2_psiBA_vs_simulated <- do.call(rbind.data.frame, resultsAllSimslow2_simulated) %>%
+    filter(names == "psiBA")
+  MSE_low2_psiBA_vs_simulated <- mean((Resultslow2_psiBA_vs_simulated$freq - Resultslow2_psiBA$mod_with)^2, na.rm = T)
+  
+  ##psiBa
+  Resultslow2_psiBa_vs_simulated <- do.call(rbind.data.frame, resultsAllSimslow2_simulated) %>%
+    filter(names == "psiBa")
+  MSE_low2_psiBa_vs_simulated <- mean((Resultslow2_psiBa_vs_simulated$freq - Resultslow2_psiBa$mod_with)^2, na.rm = T)
+  
+  MSE_low2 <- data.frame("MSE_psiA" = MSE_low2_psiA, 
+                         "MSE_psiA_vs_simulated" = MSE_low2_psiA_vs_simulated,
+                         "MSE_psiBA" = MSE_low2_psiBA,
+                         "MSE_psiBA_vs_simulated" = MSE_low2_psiBA_vs_simulated,
+                         "MSE_psiBa" = MSE_low2_psiBa, 
+                         "MSE_psiBa_vs_simulated" = MSE_low2_psiBa_vs_simulated)
+  
+  MSE_low2_level <- MSE_low2 %>% mutate(Predation_level = "low-medium")
+  
+  ##low level 3 ------------------------------------------------
+  #creating a simplier list
+  resultsAllSimslow3 <- list()
+  resultsAllSimslow3_simulated <- list()
+  #filling up the list ------------------------------------------------
+  for(i in 1:length(low3)){ 
+    resultsAllSimslow3[[i]] <- (low3[[i]][[1]])
+    resultsAllSimslow3_simulated[[i]] <- (low3[[i]][[3]])
+  }
+  
+  #unlisting the thing
+  #estimated
+  ##psiA
+  Resultslow3_psiA <- do.call(rbind.data.frame, resultsAllSimslow3) %>%
+    filter(param == "psiA")
+  MSE_low3_psiA <- mean((Resultslow3_psiA$true - Resultslow3_psiA$mod_with)^2, na.rm = T)
+  
+  ##psiBA
+  Resultslow3_psiBA <- do.call(rbind.data.frame, resultsAllSimslow3) %>%
+    filter(param == "psiBA")
+  MSE_low3_psiBA <- mean((Resultslow3_psiBA$true - Resultslow3_psiBA$mod_with)^2, na.rm = T)
+  
+  ##psiBa
+  Resultslow3_psiBa <- do.call(rbind.data.frame, resultsAllSimslow3) %>%
+    filter(param == "psiBa")
+  MSE_low3_psiBa <- mean((Resultslow3_psiBa$true - Resultslow3_psiBa$mod_with)^2, na.rm = T)
+  
+  #simulated 
+  ##psiA
+  Resultslow3_psiA_vs_simulated <- do.call(rbind.data.frame, resultsAllSimslow3_simulated) %>%
+    filter(names == "psiA")
+  MSE_low3_psiA_vs_simulated <- mean((Resultslow3_psiA_vs_simulated$freq - Resultslow3_psiA$mod_with)^2, na.rm = T)
+  
+  ##psiBA
+  Resultslow3_psiBA_vs_simulated <- do.call(rbind.data.frame, resultsAllSimslow3_simulated) %>%
+    filter(names == "psiBA")
+  MSE_low3_psiBA_vs_simulated <- mean((Resultslow3_psiBA_vs_simulated$freq - Resultslow3_psiBA$mod_with)^2, na.rm = T)
+  
+  ##psiBa
+  Resultslow3_psiBa_vs_simulated <- do.call(rbind.data.frame, resultsAllSimslow3_simulated) %>%
+    filter(names == "psiBa")
+  MSE_low3_psiBa_vs_simulated <- mean((Resultslow3_psiBa_vs_simulated$freq - Resultslow3_psiBa$mod_with)^2, na.rm = T)
+  
+  MSE_low3 <- data.frame("MSE_psiA" = MSE_low3_psiA, 
+                         "MSE_psiA_vs_simulated" = MSE_low3_psiA_vs_simulated,
+                         "MSE_psiBA" = MSE_low3_psiBA,
+                         "MSE_psiBA_vs_simulated" = MSE_low3_psiBA_vs_simulated,
+                         "MSE_psiBa" = MSE_low3_psiBa, 
+                         "MSE_psiBa_vs_simulated" = MSE_low3_psiBa_vs_simulated)
+  
+  MSE_low3_level <- MSE_low3 %>% mutate(Predation_level = "medium")
+  
+  
+  ##low level 4 ------------------------------------------------
+  #creating a simplier list
+  resultsAllSimslow4 <- list()
+  resultsAllSimslow4_simulated <- list()
+  #filling up the list ------------------------------------------------
+  for(i in 1:length(low4)){ 
+    resultsAllSimslow4[[i]] <- (low4[[i]][[1]])
+    resultsAllSimslow4_simulated[[i]] <- (low4[[i]][[3]])
+  }
+  
+  #unlisting the thing
+  #estimated
+  ##psiA
+  Resultslow4_psiA <- do.call(rbind.data.frame, resultsAllSimslow4) %>%
+    filter(param == "psiA")
+  MSE_low4_psiA <- mean((Resultslow4_psiA$true - Resultslow4_psiA$mod_with)^2, na.rm = T)
+  
+  ##psiBA
+  Resultslow4_psiBA <- do.call(rbind.data.frame, resultsAllSimslow4) %>%
+    filter(param == "psiBA")
+  MSE_low4_psiBA <- mean((Resultslow4_psiBA$true - Resultslow4_psiBA$mod_with)^2, na.rm = T)
+  
+  ##psiBa
+  Resultslow4_psiBa <- do.call(rbind.data.frame, resultsAllSimslow4) %>%
+    filter(param == "psiBa")
+  MSE_low4_psiBa <- mean((Resultslow4_psiBa$true - Resultslow4_psiBa$mod_with)^2, na.rm = T)
+  
+  #simulated 
+  ##psiA
+  Resultslow4_psiA_vs_simulated <- do.call(rbind.data.frame, resultsAllSimslow4_simulated) %>%
+    filter(names == "psiA")
+  MSE_low4_psiA_vs_simulated <- mean((Resultslow4_psiA_vs_simulated$freq - Resultslow4_psiA$mod_with)^2, na.rm = T)
+  
+  ##psiBA
+  Resultslow4_psiBA_vs_simulated <- do.call(rbind.data.frame, resultsAllSimslow4_simulated) %>%
+    filter(names == "psiBA")
+  MSE_low4_psiBA_vs_simulated <- mean((Resultslow4_psiBA_vs_simulated$freq - Resultslow4_psiBA$mod_with)^2, na.rm = T)
+  
+  ##psiBa
+  Resultslow4_psiBa_vs_simulated <- do.call(rbind.data.frame, resultsAllSimslow4_simulated) %>%
+    filter(names == "psiBa")
+  MSE_low4_psiBa_vs_simulated <- mean((Resultslow4_psiBa_vs_simulated$freq - Resultslow4_psiBa$mod_with)^2, na.rm = T)
+  
+  MSE_low4 <- data.frame("MSE_psiA" = MSE_low4_psiA, 
+                         "MSE_psiA_vs_simulated" = MSE_low4_psiA_vs_simulated,
+                         "MSE_psiBA" = MSE_low4_psiBA,
+                         "MSE_psiBA_vs_simulated" = MSE_low4_psiBA_vs_simulated,
+                         "MSE_psiBa" = MSE_low4_psiBa, 
+                         "MSE_psiBa_vs_simulated" = MSE_low4_psiBa_vs_simulated)
+  
+  MSE_low4_level <- MSE_low4 %>% mutate(Predation_level = "high-medium")
+  
+  
+  ##low level 5 ------------------------------------------------
+  #creating a simplier list
+  resultsAllSimslow5 <- list()
+  resultsAllSimslow5_simulated <- list()
+  #filling up the list ------------------------------------------------
+  for(i in 1:length(low5)){ 
+    resultsAllSimslow5[[i]] <- (low5[[i]][[1]])
+    resultsAllSimslow5_simulated[[i]] <- (low5[[i]][[3]])
+  }
+  
+  #unlisting the thing
+  #estimated
+  ##psiA
+  Resultslow5_psiA <- do.call(rbind.data.frame, resultsAllSimslow5) %>%
+    filter(param == "psiA")
+  MSE_low5_psiA <- mean((Resultslow5_psiA$true - Resultslow5_psiA$mod_with)^2, na.rm = T)
+  
+  ##psiBA
+  Resultslow5_psiBA <- do.call(rbind.data.frame, resultsAllSimslow5) %>%
+    filter(param == "psiBA")
+  MSE_low5_psiBA <- mean((Resultslow5_psiBA$true - Resultslow5_psiBA$mod_with)^2, na.rm = T)
+  
+  ##psiBa
+  Resultslow5_psiBa <- do.call(rbind.data.frame, resultsAllSimslow5) %>%
+    filter(param == "psiBa")
+  MSE_low5_psiBa <- mean((Resultslow5_psiBa$true - Resultslow5_psiBa$mod_with)^2, na.rm = T)
+  
+  #simulated 
+  ##psiA
+  Resultslow5_psiA_vs_simulated <- do.call(rbind.data.frame, resultsAllSimslow5_simulated) %>%
+    filter(names == "psiA")
+  MSE_low5_psiA_vs_simulated <- mean((Resultslow5_psiA_vs_simulated$freq - Resultslow5_psiA$mod_with)^2, na.rm = T)
+  
+  ##psiBA
+  Resultslow5_psiBA_vs_simulated <- do.call(rbind.data.frame, resultsAllSimslow5_simulated) %>%
+    filter(names == "psiBA")
+  MSE_low5_psiBA_vs_simulated <- mean((Resultslow5_psiBA_vs_simulated$freq - Resultslow5_psiBA$mod_with)^2, na.rm = T)
+  
+  ##psiBa
+  Resultslow5_psiBa_vs_simulated <- do.call(rbind.data.frame, resultsAllSimslow5_simulated) %>%
+    filter(names == "psiBa")
+  MSE_low5_psiBa_vs_simulated <- mean((Resultslow5_psiBa_vs_simulated$freq - Resultslow5_psiBa$mod_with)^2, na.rm = T)
+  
+  MSE_low5 <- data.frame("MSE_psiA" = MSE_low5_psiA, 
+                         "MSE_psiA_vs_simulated" = MSE_low5_psiA_vs_simulated,
+                         "MSE_psiBA" = MSE_low5_psiBA,
+                         "MSE_psiBA_vs_simulated" = MSE_low5_psiBA_vs_simulated,
+                         "MSE_psiBa" = MSE_low5_psiBa, 
+                         "MSE_psiBa_vs_simulated" = MSE_low5_psiBa_vs_simulated)
+  
+  MSE_low5_level <- MSE_low5 %>% mutate(Predation_level = "low-high")
+  
+  ##high level ------------------------------------------------
+  #creating a simplier list
+  resultsAllSimshigh <- list()
+  resultsAllSimshigh_simulated <- list()
+  #filling up the list ------------------------------------------------
+  for(i in 1:length(high)){ 
+    resultsAllSimshigh[[i]] <- (high[[i]][[1]])
+    resultsAllSimshigh_simulated[[i]] <- (high[[i]][[3]])
+  }
+  
+  #unlisting the thing
+  #estimated
+  ##psiA
+  Resultshigh_psiA <- do.call(rbind.data.frame, resultsAllSimshigh) %>%
+    filter(param == "psiA")
+  MSE_high_psiA <- mean((Resultshigh_psiA$true - Resultshigh_psiA$mod_with)^2, na.rm = T)
+  
+  ##psiBA
+  Resultshigh_psiBA <- do.call(rbind.data.frame, resultsAllSimshigh) %>%
+    filter(param == "psiBA")
+  MSE_high_psiBA <- mean((Resultshigh_psiBA$true - Resultshigh_psiBA$mod_with)^2, na.rm = T)
+  
+  ##psiBa
+  Resultshigh_psiBa <- do.call(rbind.data.frame, resultsAllSimshigh) %>%
+    filter(param == "psiBa")
+  MSE_high_psiBa <- mean((Resultshigh_psiBa$true - Resultshigh_psiBa$mod_with)^2, na.rm = T)
+  
+  #simulated 
+  ##psiA
+  Resultshigh_psiA_vs_simulated <- do.call(rbind.data.frame, resultsAllSimshigh_simulated) %>%
+    filter(names == "psiA")
+  MSE_high_psiA_vs_simulated <- mean((Resultshigh_psiA_vs_simulated$freq - Resultshigh_psiA$mod_with)^2, na.rm = T)
+  
+  ##psiBA
+  Resultshigh_psiBA_vs_simulated <- do.call(rbind.data.frame, resultsAllSimshigh_simulated) %>%
+    filter(names == "psiBA")
+  MSE_high_psiBA_vs_simulated <- mean((Resultshigh_psiBA_vs_simulated$freq - Resultshigh_psiBA$mod_with)^2, na.rm = T)
+  
+  ##psiBa
+  Resultshigh_psiBa_vs_simulated <- do.call(rbind.data.frame, resultsAllSimshigh_simulated) %>%
+    filter(names == "psiBa")
+  MSE_high_psiBa_vs_simulated <- mean((Resultshigh_psiBa_vs_simulated$freq - Resultshigh_psiBa$mod_with)^2, na.rm = T)
+  
+  MSE_high <- data.frame("MSE_psiA" = MSE_high_psiA, 
+                         "MSE_psiA_vs_simulated" = MSE_high_psiA_vs_simulated,
+                         "MSE_psiBA" = MSE_high_psiBA,
+                         "MSE_psiBA_vs_simulated" = MSE_high_psiBA_vs_simulated,
+                         "MSE_psiBa" = MSE_high_psiBa, 
+                         "MSE_psiBa_vs_simulated" = MSE_high_psiBa_vs_simulated)
+  
+  MSE_high_level <- MSE_high %>% mutate(Predation_level = "high")
+  all_MSE <- rbind(MSE_none_level, MSE_low1_level, MSE_low2_level, 
+                   MSE_low3_level, MSE_low4_level, MSE_low5_level, MSE_high_level)
+  
+  all_MSE$Predation_level <- factor(all_MSE$Predation_level, 
+                                    levels=c("none", "low", "low-medium", "medium", "high-medium",
+                                             "low-high", "high"))
+  
+  
+  return(all_MSE)
+  
+}
+
+##we have the simulated values 
+MSE_30N3J100Sims_PsiA0.5 <- extractData_MSE(results_30N3J100Sims_PsiA0.5) %>% 
+  mutate(Simulation_scenario = "30sites_3reps")
+MSE_50N3J100Sims_PsiA0.5 <- extractData_MSE(results_50N3J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "50sites_3reps")
+MSE_100N3J100Sims_PsiA0.5 <- extractData_MSE(results_100N3J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "100sites_3reps")
+MSE_30N5J100Sims_PsiA0.5 <- extractData_MSE(results_30N5J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "30sites_5reps")
+MSE_50N5J100Sims_PsiA0.5 <- extractData_MSE(results_50N5J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "50sites_5reps")
+MSE_100N5J100Sims_PsiA0.5 <- extractData_MSE(results_100N5J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "100sites_5reps")
+MSE_30N10J100Sims_PsiA0.5 <- extractData_MSE(results_30N10J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "30sites_10reps")
+MSE_50N10J100Sims_PsiA0.5 <- extractData_MSE(results_50N10J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "50sites_10reps")
+MSE_100N10J100Sims_PsiA0.5 <- extractData_MSE(results_100N10J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "100sites_10reps")
+
+
+
+MSE_150N3J100Sims_PsiA0.5 <- extractData_MSE(results_150N3J100Sims_PsiA0.5) %>% 
+  mutate(Simulation_scenario = "150sites_3reps")
+MSE_200N3J100Sims_PsiA0.5 <- extractData_MSE(results_200N3J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "200sites_3reps")
+MSE_250N3J100Sims_PsiA0.5 <- extractData_MSE(results_250N3J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "250sites_3reps")
+MSE_150N5J100Sims_PsiA0.5 <- extractData_MSE(results_150N5J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "150sites_5reps")
+MSE_200N5J100Sims_PsiA0.5 <- extractData_MSE(results_200N5J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "200sites_5reps")
+MSE_250N5J100Sims_PsiA0.5 <- extractData_MSE(results_250N5J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "250sites_5reps")
+MSE_150N10J100Sims_PsiA0.5 <- extractData_MSE(results_150N10J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "150sites_10reps")
+MSE_200N10J100Sims_PsiA0.5 <- extractData_MSE(results_200N10J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "200sites_10reps")
+MSE_250N10J100Sims_PsiA0.5 <- extractData_MSE(results_250N10J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "250sites_10reps")
+
+
+MSE <- rbind(MSE_30N3J100Sims_PsiA0.5, MSE_50N3J100Sims_PsiA0.5, MSE_100N3J100Sims_PsiA0.5,
+             MSE_30N5J100Sims_PsiA0.5, MSE_50N5J100Sims_PsiA0.5, MSE_100N5J100Sims_PsiA0.5,
+             MSE_30N10J100Sims_PsiA0.5, MSE_50N10J100Sims_PsiA0.5, MSE_100N10J100Sims_PsiA0.5,
+             MSE_150N3J100Sims_PsiA0.5, MSE_200N3J100Sims_PsiA0.5, MSE_250N3J100Sims_PsiA0.5,
+             MSE_150N5J100Sims_PsiA0.5, MSE_200N5J100Sims_PsiA0.5, MSE_250N5J100Sims_PsiA0.5,
+             MSE_150N10J100Sims_PsiA0.5, MSE_200N10J100Sims_PsiA0.5, MSE_250N10J100Sims_PsiA0.5)
+```
+
+# Relative Bias 
+```{r Bias}
+extractData_Bias <- function(data) {
+
+  none <- data[[1]]
+  low1 <- data[[2]]
+  low2 <- data[[3]]
+  low3 <- data[[4]]
+  low4 <- data[[5]]
+  low5 <- data[[6]]
+  high <- data[[7]]
+  
+  ##None level----------------------------
+  #creating a simplier list
+  resultsAllSimsNone <- list()
+  resultsAllSimsNone_simulated <- list()
+  #filling up the list ------------------------------------------------
+  for(i in 1:length(none)){ 
+    resultsAllSimsNone[[i]] <- (none[[i]][[1]])
+    resultsAllSimsNone_simulated[[i]] <- (none[[i]][[3]])
+  }
+  
+  #unlisting the thing
+  #estimated
+  ##psiA
+  Resultsnone_psiA <- do.call(rbind.data.frame, resultsAllSimsNone) %>%
+    filter(param == "psiA")
+  Bias_none_psiA <- abs(unique(Resultsnone_psiA$true) - mean(Resultsnone_psiA$mod_with, na.rm = T))
+  Relative_Bias_none_psiA <- (abs(unique(Resultsnone_psiA$true) - mean(Resultsnone_psiA$mod_with, na.rm = T))/unique(Resultsnone_psiA$true))
+  
+  ##psiBA
+  Resultsnone_psiBA <- do.call(rbind.data.frame, resultsAllSimsNone) %>%
+    filter(param == "psiBA")
+  Bias_none_psiBA <- abs(unique(Resultsnone_psiBA$true) - mean(Resultsnone_psiBA$mod_with, na.rm = T))
+  Relative_Bias_none_psiBA <- (abs(unique(Resultsnone_psiBA$true) - mean(Resultsnone_psiBA$mod_with, na.rm = T))/unique(Resultsnone_psiBA$true))
+  
+  ##psiBa
+  Resultsnone_psiBa <- do.call(rbind.data.frame, resultsAllSimsNone) %>%
+    filter(param == "psiBa")
+  Bias_none_psiBa <- abs(unique(Resultsnone_psiBa$true) - mean(Resultsnone_psiBa$mod_with, na.rm = T))
+  Relative_Bias_none_psiBa <- (abs(unique(Resultsnone_psiBa$true) - mean(Resultsnone_psiBa$mod_with, na.rm = T))/unique(Resultsnone_psiBa$true))
+  
+  # #simulated 
+  # ##psiA
+  # Resultsnone_psiA_vs_simulated <- do.call(rbind.data.frame, resultsAllSimsNone_simulated) %>%
+  #   filter(names == "psiA")
+  # Bias_none_psiA_vs_simulated <- mean(abs(Resultsnone_psiA_vs_simulated$freq - mean(Resultsnone_psiA$mod_with, na.rm = T)),na.rm = T)
+  # 
+  # ##psiBA
+  # Resultsnone_psiBA_vs_simulated <- do.call(rbind.data.frame, resultsAllSimsNone_simulated) %>%
+  #   filter(names == "psiBA")
+  # Bias_none_psiBA_vs_simulated <- mean(abs(Resultsnone_psiBA_vs_simulated$freq - mean(Resultsnone_psiBA$mod_with, na.rm = T)),na.rm = T)
+  # 
+  # ##psiBa
+  # Resultsnone_psiBa_vs_simulated <- do.call(rbind.data.frame, resultsAllSimsNone_simulated) %>%
+  #   filter(names == "psiBa")
+  # Bias_none_psiBa_vs_simulated <- mean(abs(Resultsnone_psiBa_vs_simulated$freq - mean(Resultsnone_psiBa$mod_with, na.rm = T)),na.rm = T)
+  
+  Bias_none <- data.frame("Bias_psiA" = Bias_none_psiA, 
+                          #"Bias_psiA_vs_simulated" = Bias_none_psiA_vs_simulated,
+                          "Bias_psiBA" = Bias_none_psiBA,
+                          #"Bias_psiBA_vs_simulated" = Bias_none_psiBA_vs_simulated,
+                          "Bias_psiBa" = Bias_none_psiBa, 
+                          #"Bias_psiBa_vs_simulated" = Bias_none_psiBa_vs_simulated)
+                          "Relative_Bias_psiA" = Relative_Bias_none_psiA, 
+                          "Relative_Bias_psiBA" = Relative_Bias_none_psiBA, 
+                          "Relative_Bias_psiBa" = Relative_Bias_none_psiBa)
+  
+  Bias_none_level <- Bias_none %>% mutate(Predation_level = "none")
+  
+  ##low level 1 ------------------------------------------------
+  #creating a simplier list
+  resultsAllSimslow1 <- list()
+  resultsAllSimslow1_simulated <- list()
+  #filling up the list ------------------------------------------------
+  for(i in 1:length(low1)){ 
+    resultsAllSimslow1[[i]] <- (low1[[i]][[1]])
+    resultsAllSimslow1_simulated[[i]] <- (low1[[i]][[3]])
+  }
+  
+  #unlisting the thing
+  #estimated
+  ##psiA
+  Resultslow1_psiA <- do.call(rbind.data.frame, resultsAllSimslow1) %>%
+    filter(param == "psiA")
+  Bias_low1_psiA <- abs(unique(Resultslow1_psiA$true) - mean(Resultslow1_psiA$mod_with, na.rm = T))
+  Relative_Bias_low1_psiA <- (abs(unique(Resultslow1_psiA$true) - mean(Resultslow1_psiA$mod_with, na.rm = T))/unique(Resultslow1_psiA$true))
+  
+  ##psiBA
+  Resultslow1_psiBA <- do.call(rbind.data.frame, resultsAllSimslow1) %>%
+    filter(param == "psiBA")
+  Bias_low1_psiBA <- abs(unique(Resultslow1_psiBA$true) - mean(Resultslow1_psiBA$mod_with, na.rm = T))
+  Relative_Bias_low1_psiBA <- (abs(unique(Resultslow1_psiBA$true) - mean(Resultslow1_psiBA$mod_with, na.rm = T))/unique(Resultslow1_psiBA$true))
+  
+  ##psiBa
+  Resultslow1_psiBa <- do.call(rbind.data.frame, resultsAllSimslow1) %>%
+    filter(param == "psiBa")
+  Bias_low1_psiBa <- abs(unique(Resultslow1_psiBa$true) - mean(Resultslow1_psiBa$mod_with, na.rm = T))
+  Relative_Bias_low1_psiBa <- (abs(unique(Resultslow1_psiBa$true) - mean(Resultslow1_psiBa$mod_with, na.rm = T))/unique(Resultslow1_psiBa$true))
+  
+  # #simulated 
+  # ##psiA
+  # Resultslow1_psiA_vs_simulated <- do.call(rbind.data.frame, resultsAllSimslow1_simulated) %>%
+  #   filter(names == "psiA")
+  # Bias_low1_psiA_vs_simulated <- mean(abs(Resultslow1_psiA_vs_simulated$freq - mean(Resultslow1_psiA$mod_with, na.rm = T)),na.rm = T)
+  # 
+  # ##psiBA
+  # Resultslow1_psiBA_vs_simulated <- do.call(rbind.data.frame, resultsAllSimslow1_simulated) %>%
+  #   filter(names == "psiBA")
+  # Bias_low1_psiBA_vs_simulated <- mean(abs(Resultslow1_psiBA_vs_simulated$freq - mean(Resultslow1_psiBA$mod_with, na.rm = T)),na.rm = T)
+  # 
+  # ##psiBa
+  # Resultslow1_psiBa_vs_simulated <- do.call(rbind.data.frame, resultsAllSimslow1_simulated) %>%
+  #   filter(names == "psiBa")
+  # Bias_low1_psiBa_vs_simulated <- mean(abs(Resultslow1_psiBa_vs_simulated$freq - mean(Resultslow1_psiBa$mod_with, na.rm = T)),na.rm = T)
+  
+  Bias_low1 <- data.frame("Bias_psiA" = Bias_low1_psiA, 
+                          #"Bias_psiA_vs_simulated" = Bias_low1_psiA_vs_simulated,
+                          "Bias_psiBA" = Bias_low1_psiBA,
+                          #"Bias_psiBA_vs_simulated" = Bias_low1_psiBA_vs_simulated,
+                          "Bias_psiBa" = Bias_low1_psiBa, 
+                          #"Bias_psiBa_vs_simulated" = Bias_low1_psiBa_vs_simulated)
+                          "Relative_Bias_psiA" = Relative_Bias_low1_psiA, 
+                          "Relative_Bias_psiBA" = Relative_Bias_low1_psiBA, 
+                          "Relative_Bias_psiBa" = Relative_Bias_low1_psiBa)
+  
+  Bias_low1_level <- Bias_low1 %>% mutate(Predation_level = "low")
+  
+  
+  ##low level 2 ------------------------------------------------
+  #creating a simplier list
+  resultsAllSimslow2 <- list()
+  resultsAllSimslow2_simulated <- list()
+  #filling up the list ------------------------------------------------
+  for(i in 1:length(low2)){ 
+    resultsAllSimslow2[[i]] <- (low2[[i]][[1]])
+    resultsAllSimslow2_simulated[[i]] <- (low2[[i]][[3]])
+  }
+  
+  #unlisting the thing
+  #estimated
+  ##psiA
+  Resultslow2_psiA <- do.call(rbind.data.frame, resultsAllSimslow2) %>%
+    filter(param == "psiA")
+  Bias_low2_psiA <- abs(unique(Resultslow2_psiA$true) - mean(Resultslow2_psiA$mod_with, na.rm = T))
+  Relative_Bias_low2_psiA <- (abs(unique(Resultslow2_psiA$true) - mean(Resultslow2_psiA$mod_with, na.rm = T))/unique(Resultslow2_psiA$true))
+  
+  ##psiBA
+  Resultslow2_psiBA <- do.call(rbind.data.frame, resultsAllSimslow2) %>%
+    filter(param == "psiBA")
+  Bias_low2_psiBA <- abs(unique(Resultslow2_psiBA$true) - mean(Resultslow2_psiBA$mod_with, na.rm = T))
+  Relative_Bias_low2_psiBA <- (abs(unique(Resultslow2_psiBA$true) - mean(Resultslow2_psiBA$mod_with, na.rm = T))/unique(Resultslow2_psiBA$true))
+  
+  ##psiBa
+  Resultslow2_psiBa <- do.call(rbind.data.frame, resultsAllSimslow2) %>%
+    filter(param == "psiBa")
+  Bias_low2_psiBa <- abs(unique(Resultslow2_psiBa$true) - mean(Resultslow2_psiBa$mod_with, na.rm = T))
+  Relative_Bias_low2_psiBa <- (abs(unique(Resultslow2_psiBa$true) - mean(Resultslow2_psiBa$mod_with, na.rm = T))/unique(Resultslow2_psiBa$true))
+  
+  # #simulated 
+  # ##psiA
+  # Resultslow2_psiA_vs_simulated <- do.call(rbind.data.frame, resultsAllSimslow2_simulated) %>%
+  #   filter(names == "psiA")
+  # Bias_low2_psiA_vs_simulated <- mean(abs(Resultslow2_psiA_vs_simulated$freq - mean(Resultslow2_psiA$mod_with, na.rm = T)),na.rm = T)
+  # 
+  # ##psiBA
+  # Resultslow2_psiBA_vs_simulated <- do.call(rbind.data.frame, resultsAllSimslow2_simulated) %>%
+  #   filter(names == "psiBA")
+  # Bias_low2_psiBA_vs_simulated <- mean(abs(Resultslow2_psiBA_vs_simulated$freq - mean(Resultslow2_psiBA$mod_with, na.rm = T)),na.rm = T)
+  # 
+  # ##psiBa
+  # Resultslow2_psiBa_vs_simulated <- do.call(rbind.data.frame, resultsAllSimslow2_simulated) %>%
+  #   filter(names == "psiBa")
+  # Bias_low2_psiBa_vs_simulated <- mean(abs(Resultslow2_psiBa_vs_simulated$freq - mean(Resultslow2_psiBa$mod_with, na.rm = T)),na.rm = T)
+  
+  Bias_low2 <- data.frame("Bias_psiA" = Bias_low2_psiA, 
+                          #"Bias_psiA_vs_simulated" = Bias_low2_psiA_vs_simulated,
+                          "Bias_psiBA" = Bias_low2_psiBA,
+                          #"Bias_psiBA_vs_simulated" = Bias_low2_psiBA_vs_simulated,
+                          "Bias_psiBa" = Bias_low2_psiBa, 
+                          #"Bias_psiBa_vs_simulated" = Bias_low2_psiBa_vs_simulated)
+                          "Relative_Bias_psiA" = Relative_Bias_low2_psiA, 
+                          "Relative_Bias_psiBA" = Relative_Bias_low2_psiBA, 
+                          "Relative_Bias_psiBa" = Relative_Bias_low2_psiBa)
+  
+  Bias_low2_level <- Bias_low2 %>% mutate(Predation_level = "low-medium")
+  
+  ##low level 3 ------------------------------------------------
+  #creating a simplier list
+  resultsAllSimslow3 <- list()
+  resultsAllSimslow3_simulated <- list()
+  #filling up the list ------------------------------------------------
+  for(i in 1:length(low3)){ 
+    resultsAllSimslow3[[i]] <- (low3[[i]][[1]])
+    resultsAllSimslow3_simulated[[i]] <- (low3[[i]][[3]])
+  }
+  
+  #unlisting the thing
+  #estimated
+  ##psiA
+  Resultslow3_psiA <- do.call(rbind.data.frame, resultsAllSimslow3) %>%
+    filter(param == "psiA")
+  Bias_low3_psiA <- abs(unique(Resultslow3_psiA$true) - mean(Resultslow3_psiA$mod_with, na.rm = T))
+  Relative_Bias_low3_psiA <- (abs(unique(Resultslow3_psiA$true) - mean(Resultslow3_psiA$mod_with, na.rm = T))/unique(Resultslow3_psiA$true))
+  
+  ##psiBA
+  Resultslow3_psiBA <- do.call(rbind.data.frame, resultsAllSimslow3) %>%
+    filter(param == "psiBA")
+  Bias_low3_psiBA <- abs(unique(Resultslow3_psiBA$true) - mean(Resultslow3_psiBA$mod_with, na.rm = T))
+  Relative_Bias_low3_psiBA <- (abs(unique(Resultslow3_psiBA$true) - mean(Resultslow3_psiBA$mod_with, na.rm = T))/unique(Resultslow3_psiBA$true))
+  
+  ##psiBa
+  Resultslow3_psiBa <- do.call(rbind.data.frame, resultsAllSimslow3) %>%
+    filter(param == "psiBa")
+  Bias_low3_psiBa <- abs(unique(Resultslow3_psiBa$true) - mean(Resultslow3_psiBa$mod_with, na.rm = T))
+  Relative_Bias_low3_psiBa <- (abs(unique(Resultslow3_psiBa$true) - mean(Resultslow3_psiBa$mod_with, na.rm = T))/unique(Resultslow3_psiBa$true))
+  
+  # #simulated 
+  # ##psiA
+  # Resultslow3_psiA_vs_simulated <- do.call(rbind.data.frame, resultsAllSimslow3_simulated) %>%
+  #   filter(names == "psiA")
+  # Bias_low3_psiA_vs_simulated <- mean(abs(Resultslow3_psiA_vs_simulated$freq - mean(Resultslow3_psiA$mod_with, na.rm = T)),na.rm = T)
+  # 
+  # ##psiBA
+  # Resultslow3_psiBA_vs_simulated <- do.call(rbind.data.frame, resultsAllSimslow3_simulated) %>%
+  #   filter(names == "psiBA")
+  # Bias_low3_psiBA_vs_simulated <- mean(abs(Resultslow3_psiBA_vs_simulated$freq - mean(Resultslow3_psiBA$mod_with, na.rm = T)),na.rm = T)
+  # 
+  # ##psiBa
+  # Resultslow3_psiBa_vs_simulated <- do.call(rbind.data.frame, resultsAllSimslow3_simulated) %>%
+  #   filter(names == "psiBa")
+  # Bias_low3_psiBa_vs_simulated <- mean(abs(Resultslow3_psiBa_vs_simulated$freq - mean(Resultslow3_psiBa$mod_with, na.rm = T)),na.rm = T)
+  
+  Bias_low3 <- data.frame("Bias_psiA" = Bias_low3_psiA, 
+                          #"Bias_psiA_vs_simulated" = Bias_low3_psiA_vs_simulated,
+                          "Bias_psiBA" = Bias_low3_psiBA,
+                          #"Bias_psiBA_vs_simulated" = Bias_low3_psiBA_vs_simulated,
+                          "Bias_psiBa" = Bias_low3_psiBa, 
+                          #"Bias_psiBa_vs_simulated" = Bias_low3_psiBa_vs_simulated)
+                          "Relative_Bias_psiA" = Relative_Bias_low3_psiA, 
+                          "Relative_Bias_psiBA" = Relative_Bias_low3_psiBA, 
+                          "Relative_Bias_psiBa" = Relative_Bias_low3_psiBa)
+  
+  Bias_low3_level <- Bias_low3 %>% mutate(Predation_level = "medium")
+  
+  ##low level 4 ------------------------------------------------
+  #creating a simplier list
+  resultsAllSimslow4 <- list()
+  resultsAllSimslow4_simulated <- list()
+  #filling up the list ------------------------------------------------
+  for(i in 1:length(low4)){ 
+    resultsAllSimslow4[[i]] <- (low4[[i]][[1]])
+    resultsAllSimslow4_simulated[[i]] <- (low4[[i]][[3]])
+  }
+  
+  #unlisting the thing
+  #estimated
+  ##psiA
+  Resultslow4_psiA <- do.call(rbind.data.frame, resultsAllSimslow4) %>%
+    filter(param == "psiA")
+  Bias_low4_psiA <- abs(unique(Resultslow4_psiA$true) - mean(Resultslow4_psiA$mod_with, na.rm = T))
+  Relative_Bias_low4_psiA <- (abs(unique(Resultslow4_psiA$true) - mean(Resultslow4_psiA$mod_with, na.rm = T))/unique(Resultslow4_psiA$true))
+  
+  ##psiBA
+  Resultslow4_psiBA <- do.call(rbind.data.frame, resultsAllSimslow4) %>%
+    filter(param == "psiBA")
+  Bias_low4_psiBA <- abs(unique(Resultslow4_psiBA$true) - mean(Resultslow4_psiBA$mod_with, na.rm = T))
+  Relative_Bias_low4_psiBA <- (abs(unique(Resultslow4_psiBA$true) - mean(Resultslow4_psiBA$mod_with, na.rm = T))/unique(Resultslow4_psiBA$true))
+  
+  ##psiBa
+  Resultslow4_psiBa <- do.call(rbind.data.frame, resultsAllSimslow4) %>%
+    filter(param == "psiBa")
+  Bias_low4_psiBa <- abs(unique(Resultslow4_psiBa$true) - mean(Resultslow4_psiBa$mod_with, na.rm = T))
+  Relative_Bias_low4_psiBa <- (abs(unique(Resultslow4_psiBa$true) - mean(Resultslow4_psiBa$mod_with, na.rm = T))/unique(Resultslow4_psiBa$true))
+  
+  # #simulated 
+  # ##psiA
+  # Resultslow4_psiA_vs_simulated <- do.call(rbind.data.frame, resultsAllSimslow4_simulated) %>%
+  #   filter(names == "psiA")
+  # Bias_low4_psiA_vs_simulated <- mean(abs(Resultslow4_psiA_vs_simulated$freq - mean(Resultslow4_psiA$mod_with, na.rm = T)),na.rm = T)
+  # 
+  # ##psiBA
+  # Resultslow4_psiBA_vs_simulated <- do.call(rbind.data.frame, resultsAllSimslow4_simulated) %>%
+  #   filter(names == "psiBA")
+  # Bias_low4_psiBA_vs_simulated <- mean(abs(Resultslow4_psiBA_vs_simulated$freq - mean(Resultslow4_psiBA$mod_with, na.rm = T)),na.rm = T)
+  # 
+  # ##psiBa
+  # Resultslow4_psiBa_vs_simulated <- do.call(rbind.data.frame, resultsAllSimslow4_simulated) %>%
+  #   filter(names == "psiBa")
+  # Bias_low4_psiBa_vs_simulated <- mean(abs(Resultslow4_psiBa_vs_simulated$freq - mean(Resultslow4_psiBa$mod_with, na.rm = T)),na.rm = T)
+  
+  Bias_low4 <- data.frame("Bias_psiA" = Bias_low4_psiA, 
+                          #"Bias_psiA_vs_simulated" = Bias_low4_psiA_vs_simulated,
+                          "Bias_psiBA" = Bias_low4_psiBA,
+                          #"Bias_psiBA_vs_simulated" = Bias_low4_psiBA_vs_simulated,
+                          "Bias_psiBa" = Bias_low4_psiBa, 
+                          #"Bias_psiBa_vs_simulated" = Bias_low4_psiBa_vs_simulated)
+                          "Relative_Bias_psiA" = Relative_Bias_low4_psiA, 
+                          "Relative_Bias_psiBA" = Relative_Bias_low4_psiBA, 
+                          "Relative_Bias_psiBa" = Relative_Bias_low4_psiBa)
+  
+  Bias_low4_level <- Bias_low4 %>% mutate(Predation_level = "high-medium")
+  
+  ##low level 5 ------------------------------------------------
+  #creating a simplier list
+  resultsAllSimslow5 <- list()
+  resultsAllSimslow5_simulated <- list()
+  #filling up the list ------------------------------------------------
+  for(i in 1:length(low5)){ 
+    resultsAllSimslow5[[i]] <- (low5[[i]][[1]])
+    resultsAllSimslow5_simulated[[i]] <- (low5[[i]][[3]])
+  }
+  
+  #unlisting the thing
+  #estimated
+  ##psiA
+  Resultslow5_psiA <- do.call(rbind.data.frame, resultsAllSimslow5) %>%
+    filter(param == "psiA")
+  Bias_low5_psiA <- abs(unique(Resultslow5_psiA$true) - mean(Resultslow5_psiA$mod_with, na.rm = T))
+  Relative_Bias_low5_psiA <- (abs(unique(Resultslow5_psiA$true) - mean(Resultslow5_psiA$mod_with, na.rm = T))/unique(Resultslow5_psiA$true))
+  
+  ##psiBA
+  Resultslow5_psiBA <- do.call(rbind.data.frame, resultsAllSimslow5) %>%
+    filter(param == "psiBA")
+  Bias_low5_psiBA <- abs(unique(Resultslow5_psiBA$true) - mean(Resultslow5_psiBA$mod_with, na.rm = T))
+  Relative_Bias_low5_psiBA <- (abs(unique(Resultslow5_psiBA$true) - mean(Resultslow5_psiBA$mod_with, na.rm = T))/unique(Resultslow5_psiBA$true))
+  
+  ##psiBa
+  Resultslow5_psiBa <- do.call(rbind.data.frame, resultsAllSimslow5) %>%
+    filter(param == "psiBa")
+  Bias_low5_psiBa <- abs(unique(Resultslow5_psiBa$true) - mean(Resultslow5_psiBa$mod_with, na.rm = T))
+  Relative_Bias_low5_psiBa <- (abs(unique(Resultslow5_psiBa$true) - mean(Resultslow5_psiBa$mod_with, na.rm = T))/unique(Resultslow5_psiBa$true))
+  
+  # #simulated 
+  # ##psiA
+  # Resultslow5_psiA_vs_simulated <- do.call(rbind.data.frame, resultsAllSimslow5_simulated) %>%
+  #   filter(names == "psiA")
+  # Bias_low5_psiA_vs_simulated <- mean(abs(Resultslow5_psiA_vs_simulated$freq - mean(Resultslow5_psiA$mod_with, na.rm = T)),na.rm = T)
+  # 
+  # ##psiBA
+  # Resultslow5_psiBA_vs_simulated <- do.call(rbind.data.frame, resultsAllSimslow5_simulated) %>%
+  #   filter(names == "psiBA")
+  # Bias_low5_psiBA_vs_simulated <- mean(abs(Resultslow5_psiBA_vs_simulated$freq - mean(Resultslow5_psiBA$mod_with, na.rm = T)),na.rm = T)
+  # 
+  # ##psiBa
+  # Resultslow5_psiBa_vs_simulated <- do.call(rbind.data.frame, resultsAllSimslow5_simulated) %>%
+  #   filter(names == "psiBa")
+  # Bias_low5_psiBa_vs_simulated <- mean(abs(Resultslow5_psiBa_vs_simulated$freq - mean(Resultslow5_psiBa$mod_with, na.rm = T)),na.rm = T)
+  
+  Bias_low5 <- data.frame("Bias_psiA" = Bias_low5_psiA, 
+                          #"Bias_psiA_vs_simulated" = Bias_low5_psiA_vs_simulated,
+                          "Bias_psiBA" = Bias_low5_psiBA,
+                          #"Bias_psiBA_vs_simulated" = Bias_low5_psiBA_vs_simulated,
+                          "Bias_psiBa" = Bias_low5_psiBa, 
+                          #"Bias_psiBa_vs_simulated" = Bias_low5_psiBa_vs_simulated)
+                          "Relative_Bias_psiA" = Relative_Bias_low5_psiA, 
+                          "Relative_Bias_psiBA" = Relative_Bias_low5_psiBA, 
+                          "Relative_Bias_psiBa" = Relative_Bias_low5_psiBa)
+  
+  Bias_low5_level <- Bias_low5 %>% mutate(Predation_level = "low-high")
+  
+  ##high level ------------------------------------------------
+  #creating a simplier list
+  resultsAllSimshigh <- list()
+  resultsAllSimshigh_simulated <- list()
+  #filling up the list ------------------------------------------------
+  for(i in 1:length(high)){ 
+    resultsAllSimshigh[[i]] <- (high[[i]][[1]])
+    resultsAllSimshigh_simulated[[i]] <- (high[[i]][[3]])
+  }
+  
+  #unlisting the thing
+  #estimated
+  ##psiA
+  Resultshigh_psiA <- do.call(rbind.data.frame, resultsAllSimshigh) %>%
+    filter(param == "psiA")
+  Bias_high_psiA <- abs(unique(Resultshigh_psiA$true) - mean(Resultshigh_psiA$mod_with, na.rm = T))
+  Relative_Bias_high_psiA <- (abs(unique(Resultshigh_psiA$true) - mean(Resultshigh_psiA$mod_with, na.rm = T))/unique(Resultshigh_psiA$true))
+  
+  ##psiBA
+  Resultshigh_psiBA <- do.call(rbind.data.frame, resultsAllSimshigh) %>%
+    filter(param == "psiBA")
+  Bias_high_psiBA <- abs(unique(Resultshigh_psiBA$true) - mean(Resultshigh_psiBA$mod_with, na.rm = T))
+  Relative_Bias_high_psiBA <- (abs(unique(Resultshigh_psiBA$true) - mean(Resultshigh_psiBA$mod_with, na.rm = T))/unique(Resultshigh_psiBA$true))
+  
+  ##psiBa
+  Resultshigh_psiBa <- do.call(rbind.data.frame, resultsAllSimshigh) %>%
+    filter(param == "psiBa")
+  Bias_high_psiBa <- abs(unique(Resultshigh_psiBa$true) - mean(Resultshigh_psiBa$mod_with, na.rm = T))
+  Relative_Bias_high_psiBa <- (abs(unique(Resultshigh_psiBa$true) - mean(Resultshigh_psiBa$mod_with, na.rm = T))/unique(Resultshigh_psiBa$true))
+  
+  # #simulated 
+  # ##psiA
+  # Resultshigh_psiA_vs_simulated <- do.call(rbind.data.frame, resultsAllSimshigh_simulated) %>%
+  #   filter(names == "psiA")
+  # Bias_high_psiA_vs_simulated <- mean(abs(Resultshigh_psiA_vs_simulated$freq - mean(Resultshigh_psiA$mod_with, na.rm = T)),na.rm = T)
+  # 
+  # ##psiBA
+  # Resultshigh_psiBA_vs_simulated <- do.call(rbind.data.frame, resultsAllSimshigh_simulated) %>%
+  #   filter(names == "psiBA")
+  # Bias_high_psiBA_vs_simulated <- mean(abs(Resultshigh_psiBA_vs_simulated$freq - mean(Resultshigh_psiBA$mod_with, na.rm = T)),na.rm = T)
+  # 
+  # ##psiBa
+  # Resultshigh_psiBa_vs_simulated <- do.call(rbind.data.frame, resultsAllSimshigh_simulated) %>%
+  #   filter(names == "psiBa")
+  # Bias_high_psiBa_vs_simulated <- mean(abs(Resultshigh_psiBa_vs_simulated$freq - mean(Resultshigh_psiBa$mod_with, na.rm = T)),na.rm = T)
+  
+  Bias_high <- data.frame("Bias_psiA" = Bias_high_psiA, 
+                          #"Bias_psiA_vs_simulated" = Bias_high_psiA_vs_simulated,
+                          "Bias_psiBA" = Bias_high_psiBA,
+                          #"Bias_psiBA_vs_simulated" = Bias_high_psiBA_vs_simulated,
+                          "Bias_psiBa" = Bias_high_psiBa, 
+                          #"Bias_psiBa_vs_simulated" = Bias_high_psiBa_vs_simulated)
+                          "Relative_Bias_psiA" = Relative_Bias_high_psiA, 
+                          "Relative_Bias_psiBA" = Relative_Bias_high_psiBA, 
+                          "Relative_Bias_psiBa" = Relative_Bias_high_psiBa)
+  
+  Bias_high_level <- Bias_high %>% mutate(Predation_level = "high")
+  
+  
+  all_Bias <- rbind(Bias_none_level, Bias_low1_level, Bias_low2_level, 
+                    Bias_low3_level, Bias_low4_level, Bias_low5_level, Bias_high_level)
+  
+  all_Bias$Predation_level <- factor(all_Bias$Predation_level, 
+                                     levels=c("none", "low", "low-medium", "medium", "high-medium",
+                                              "low-high", "high"))
+  
+  
+  return(all_Bias)
+  
+}
+
+##we have the simulated values 
+Bias_30N3J100Sims_PsiA0.5 <- extractData_Bias(results_30N3J100Sims_PsiA0.5) %>% 
+  mutate(Simulation_scenario = "30sites_3reps")
+Bias_50N3J100Sims_PsiA0.5 <- extractData_Bias(results_50N3J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "50sites_3reps")
+Bias_100N3J100Sims_PsiA0.5 <- extractData_Bias(results_100N3J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "100sites_3reps")
+Bias_30N5J100Sims_PsiA0.5 <- extractData_Bias(results_30N5J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "30sites_5reps")
+Bias_50N5J100Sims_PsiA0.5 <- extractData_Bias(results_50N5J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "50sites_5reps")
+Bias_100N5J100Sims_PsiA0.5 <- extractData_Bias(results_100N5J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "100sites_5reps")
+Bias_30N10J100Sims_PsiA0.5 <- extractData_Bias(results_30N10J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "30sites_10reps")
+Bias_50N10J100Sims_PsiA0.5 <- extractData_Bias(results_50N10J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "50sites_10reps")
+Bias_100N10J100Sims_PsiA0.5 <- extractData_Bias(results_100N10J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "100sites_10reps")
+
+
+
+Bias_150N3J100Sims_PsiA0.5 <- extractData_Bias(results_150N3J100Sims_PsiA0.5) %>% 
+  mutate(Simulation_scenario = "150sites_3reps")
+Bias_200N3J100Sims_PsiA0.5 <- extractData_Bias(results_200N3J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "200sites_3reps")
+Bias_250N3J100Sims_PsiA0.5 <- extractData_Bias(results_250N3J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "250sites_3reps")
+Bias_150N5J100Sims_PsiA0.5 <- extractData_Bias(results_150N5J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "150sites_5reps")
+Bias_200N5J100Sims_PsiA0.5 <- extractData_Bias(results_200N5J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "200sites_5reps")
+Bias_250N5J100Sims_PsiA0.5 <- extractData_Bias(results_250N5J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "250sites_5reps")
+Bias_150N10J100Sims_PsiA0.5 <- extractData_Bias(results_150N10J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "150sites_10reps")
+Bias_200N10J100Sims_PsiA0.5 <- extractData_Bias(results_200N10J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "200sites_10reps")
+Bias_250N10J100Sims_PsiA0.5 <- extractData_Bias(results_250N10J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "250sites_10reps")
+
+
+Bias <- rbind(Bias_30N3J100Sims_PsiA0.5, Bias_50N3J100Sims_PsiA0.5, Bias_100N3J100Sims_PsiA0.5,
+             Bias_30N5J100Sims_PsiA0.5, Bias_50N5J100Sims_PsiA0.5, Bias_100N5J100Sims_PsiA0.5,
+             Bias_30N10J100Sims_PsiA0.5, Bias_50N10J100Sims_PsiA0.5, Bias_100N10J100Sims_PsiA0.5,
+             Bias_150N3J100Sims_PsiA0.5, Bias_200N3J100Sims_PsiA0.5, Bias_250N3J100Sims_PsiA0.5,
+             Bias_150N5J100Sims_PsiA0.5, Bias_200N5J100Sims_PsiA0.5, Bias_250N5J100Sims_PsiA0.5,
+             Bias_150N10J100Sims_PsiA0.5, Bias_200N10J100Sims_PsiA0.5, Bias_250N10J100Sims_PsiA0.5)
+
+
+
+```
+
+# coefficient of variation 
+
+```{r CV}
+extractData_CV <- function(data) {
+  
+  none <- data[[1]]
+  low1 <- data[[2]]
+  low2 <- data[[3]]
+  low3 <- data[[4]]
+  low4 <- data[[5]]
+  low5 <- data[[6]]
+  high <- data[[7]]
+  
+  ##None level----------------------------
+  #creating a simplier list
+  resultsAllSimsNone <- list()
+  resultsAllSimsNone_simulated <- list()
+  #filling up the list ------------------------------------------------
+  for(i in 1:length(none)){ 
+    resultsAllSimsNone[[i]] <- (none[[i]][[1]])
+    resultsAllSimsNone_simulated[[i]] <- (none[[i]][[3]])
+  }
+  
+  #unlisting the thing
+  #estimated
+  ##psiA
+  Resultsnone_psiA <- do.call(rbind.data.frame, resultsAllSimsNone) %>%
+    filter(param == "psiA")
+  CV_none_psiA <- sd(Resultsnone_psiA$mod_with, na.rm = T)/mean(Resultsnone_psiA$mod_with, na.rm = T)*100
+  
+  ##psiBA
+  Resultsnone_psiBA <- do.call(rbind.data.frame, resultsAllSimsNone) %>%
+    filter(param == "psiBA")
+  CV_none_psiBA <- sd(Resultsnone_psiBA$mod_with, na.rm = T)/mean(Resultsnone_psiBA$mod_with, na.rm = T)*100
+  
+  ##psiBa
+  Resultsnone_psiBa <- do.call(rbind.data.frame, resultsAllSimsNone) %>%
+    filter(param == "psiBa")
+  CV_none_psiBa <- sd(Resultsnone_psiBa$mod_with, na.rm = T)/mean(Resultsnone_psiBa$mod_with, na.rm = T)*100
+  
+CV_none <- data.frame("CV_psiA" = CV_none_psiA, 
+                         "CV_psiBA" = CV_none_psiBA,
+                         "CV_psiBa" = CV_none_psiBa)
+
+  CV_none_level <- CV_none %>% mutate(Predation_level = "none")
+  
+  ##low level 1 ------------------------------------------------
+  #creating a simplier list
+  resultsAllSimslow1 <- list()
+  resultsAllSimslow1_simulated <- list()
+  #filling up the list ------------------------------------------------
+  for(i in 1:length(low1)){ 
+    resultsAllSimslow1[[i]] <- (low1[[i]][[1]])
+    resultsAllSimslow1_simulated[[i]] <- (low1[[i]][[3]])
+  }
+  
+  #unlisting the thing
+  #estimated
+  ##psiA
+  Resultslow1_psiA <- do.call(rbind.data.frame, resultsAllSimslow1) %>%
+    filter(param == "psiA")
+  CV_low1_psiA <- sd(Resultslow1_psiA$mod_with, na.rm = T)/mean(Resultslow1_psiA$mod_with, na.rm = T)*100
+  
+  ##psiBA
+  Resultslow1_psiBA <- do.call(rbind.data.frame, resultsAllSimslow1) %>%
+    filter(param == "psiBA")
+  CV_low1_psiBA <- sd(Resultslow1_psiBA$mod_with, na.rm = T)/mean(Resultslow1_psiBA$mod_with, na.rm = T)*100
+  
+  ##psiBa
+  Resultslow1_psiBa <- do.call(rbind.data.frame, resultsAllSimslow1) %>%
+    filter(param == "psiBa")
+  CV_low1_psiBa <- sd(Resultslow1_psiBa$mod_with, na.rm = T)/mean(Resultslow1_psiBa$mod_with, na.rm = T)*100
+  
+CV_low1 <- data.frame("CV_psiA" = CV_low1_psiA, 
+                         "CV_psiBA" = CV_low1_psiBA,
+                         "CV_psiBa" = CV_low1_psiBa)
+
+  CV_low1_level <- CV_low1 %>% mutate(Predation_level = "low")
+  
+  ##low level 2 ------------------------------------------------
+  #creating a simplier list
+  resultsAllSimslow2 <- list()
+  resultsAllSimslow2_simulated <- list()
+  #filling up the list ------------------------------------------------
+  for(i in 1:length(low2)){ 
+    resultsAllSimslow2[[i]] <- (low2[[i]][[1]])
+    resultsAllSimslow2_simulated[[i]] <- (low2[[i]][[3]])
+  }
+  
+  #unlisting the thing
+  #estimated
+  ##psiA
+  Resultslow2_psiA <- do.call(rbind.data.frame, resultsAllSimslow2) %>%
+    filter(param == "psiA")
+  CV_low2_psiA <- sd(Resultslow2_psiA$mod_with, na.rm = T)/mean(Resultslow2_psiA$mod_with, na.rm = T)*100
+  
+  ##psiBA
+  Resultslow2_psiBA <- do.call(rbind.data.frame, resultsAllSimslow2) %>%
+    filter(param == "psiBA")
+  CV_low2_psiBA <- sd(Resultslow2_psiBA$mod_with, na.rm = T)/mean(Resultslow2_psiBA$mod_with, na.rm = T)*100
+  
+  ##psiBa
+  Resultslow2_psiBa <- do.call(rbind.data.frame, resultsAllSimslow2) %>%
+    filter(param == "psiBa")
+  CV_low2_psiBa <- sd(Resultslow2_psiBa$mod_with, na.rm = T)/mean(Resultslow2_psiBa$mod_with, na.rm = T)*100
+  
+CV_low2 <- data.frame("CV_psiA" = CV_low2_psiA, 
+                         "CV_psiBA" = CV_low2_psiBA,
+                         "CV_psiBa" = CV_low2_psiBa)
+
+  CV_low2_level <- CV_low2 %>% mutate(Predation_level = "low-medium")
+  
+  ##low level 3 ------------------------------------------------
+   #creating a simplier list
+  resultsAllSimslow3 <- list()
+  resultsAllSimslow3_simulated <- list()
+  #filling up the list ------------------------------------------------
+  for(i in 1:length(low3)){ 
+    resultsAllSimslow3[[i]] <- (low3[[i]][[1]])
+    resultsAllSimslow3_simulated[[i]] <- (low3[[i]][[3]])
+  }
+  
+  #unlisting the thing
+  #estimated
+  ##psiA
+  Resultslow3_psiA <- do.call(rbind.data.frame, resultsAllSimslow3) %>%
+    filter(param == "psiA")
+  CV_low3_psiA <- sd(Resultslow3_psiA$mod_with, na.rm = T)/mean(Resultslow3_psiA$mod_with, na.rm = T)*100
+  
+  ##psiBA
+  Resultslow3_psiBA <- do.call(rbind.data.frame, resultsAllSimslow3) %>%
+    filter(param == "psiBA")
+  CV_low3_psiBA <- sd(Resultslow3_psiBA$mod_with, na.rm = T)/mean(Resultslow3_psiBA$mod_with, na.rm = T)*100
+  
+  ##psiBa
+  Resultslow3_psiBa <- do.call(rbind.data.frame, resultsAllSimslow3) %>%
+    filter(param == "psiBa")
+  CV_low3_psiBa <- sd(Resultslow3_psiBa$mod_with, na.rm = T)/mean(Resultslow3_psiBa$mod_with, na.rm = T)*100
+  
+CV_low3 <- data.frame("CV_psiA" = CV_low3_psiA, 
+                         "CV_psiBA" = CV_low3_psiBA,
+                         "CV_psiBa" = CV_low3_psiBa)
+
+  CV_low3_level <- CV_low3 %>% mutate(Predation_level = "medium")
+  
+  
+  ##low level 4 ------------------------------------------------
+   #creating a simplier list
+  resultsAllSimslow4 <- list()
+  resultsAllSimslow4_simulated <- list()
+  #filling up the list ------------------------------------------------
+  for(i in 1:length(low4)){ 
+    resultsAllSimslow4[[i]] <- (low4[[i]][[1]])
+    resultsAllSimslow4_simulated[[i]] <- (low4[[i]][[3]])
+  }
+  
+  #unlisting the thing
+  #estimated
+  ##psiA
+  Resultslow4_psiA <- do.call(rbind.data.frame, resultsAllSimslow4) %>%
+    filter(param == "psiA")
+  CV_low4_psiA <- sd(Resultslow4_psiA$mod_with, na.rm = T)/mean(Resultslow4_psiA$mod_with, na.rm = T)*100
+  
+  ##psiBA
+  Resultslow4_psiBA <- do.call(rbind.data.frame, resultsAllSimslow4) %>%
+    filter(param == "psiBA")
+  CV_low4_psiBA <- sd(Resultslow4_psiBA$mod_with, na.rm = T)/mean(Resultslow4_psiBA$mod_with, na.rm = T)*100
+  
+  ##psiBa
+  Resultslow4_psiBa <- do.call(rbind.data.frame, resultsAllSimslow4) %>%
+    filter(param == "psiBa")
+  CV_low4_psiBa <- sd(Resultslow4_psiBa$mod_with, na.rm = T)/mean(Resultslow4_psiBa$mod_with, na.rm = T)*100
+  
+CV_low4 <- data.frame("CV_psiA" = CV_low4_psiA, 
+                         "CV_psiBA" = CV_low4_psiBA,
+                         "CV_psiBa" = CV_low4_psiBa)
+
+  CV_low4_level <- CV_low4 %>% mutate(Predation_level = "high-medium")
+  
+  
+  ##low level 5 ------------------------------------------------
+  #creating a simplier list
+  resultsAllSimslow5 <- list()
+  resultsAllSimslow5_simulated <- list()
+  #filling up the list ------------------------------------------------
+  for(i in 1:length(low5)){ 
+    resultsAllSimslow5[[i]] <- (low5[[i]][[1]])
+    resultsAllSimslow5_simulated[[i]] <- (low5[[i]][[3]])
+  }
+  
+  #unlisting the thing
+  #estimated
+  ##psiA
+  Resultslow5_psiA <- do.call(rbind.data.frame, resultsAllSimslow5) %>%
+    filter(param == "psiA")
+  CV_low5_psiA <- sd(Resultslow5_psiA$mod_with, na.rm = T)/mean(Resultslow5_psiA$mod_with, na.rm = T)*100
+  
+  ##psiBA
+  Resultslow5_psiBA <- do.call(rbind.data.frame, resultsAllSimslow5) %>%
+    filter(param == "psiBA")
+  CV_low5_psiBA <- sd(Resultslow5_psiBA$mod_with, na.rm = T)/mean(Resultslow5_psiBA$mod_with, na.rm = T)*100
+  
+  ##psiBa
+  Resultslow5_psiBa <- do.call(rbind.data.frame, resultsAllSimslow5) %>%
+    filter(param == "psiBa")
+  CV_low5_psiBa <- sd(Resultslow5_psiBa$mod_with, na.rm = T)/mean(Resultslow5_psiBa$mod_with, na.rm = T)*100
+  
+CV_low5 <- data.frame("CV_psiA" = CV_low5_psiA, 
+                         "CV_psiBA" = CV_low5_psiBA,
+                         "CV_psiBa" = CV_low5_psiBa)
+
+  CV_low5_level <- CV_low5 %>% mutate(Predation_level = "low-high")
+  
+  ##high level ------------------------------------------------
+  #creating a simplier list
+  resultsAllSimshigh <- list()
+  resultsAllSimshigh_simulated <- list()
+  #filling up the list ------------------------------------------------
+  for(i in 1:length(high)){ 
+    resultsAllSimshigh[[i]] <- (high[[i]][[1]])
+    resultsAllSimshigh_simulated[[i]] <- (high[[i]][[3]])
+  }
+  
+  #unlisting the thing
+  #estimated
+  ##psiA
+  Resultshigh_psiA <- do.call(rbind.data.frame, resultsAllSimshigh) %>%
+    filter(param == "psiA")
+  CV_high_psiA <- sd(Resultshigh_psiA$mod_with, na.rm = T)/mean(Resultshigh_psiA$mod_with, na.rm = T)*100
+  
+  ##psiBA
+  Resultshigh_psiBA <- do.call(rbind.data.frame, resultsAllSimshigh) %>%
+    filter(param == "psiBA")
+  CV_high_psiBA <- sd(Resultshigh_psiBA$mod_with, na.rm = T)/mean(Resultshigh_psiBA$mod_with, na.rm = T)*100
+  
+  ##psiBa
+  Resultshigh_psiBa <- do.call(rbind.data.frame, resultsAllSimshigh) %>%
+    filter(param == "psiBa")
+  CV_high_psiBa <- sd(Resultshigh_psiBa$mod_with, na.rm = T)/mean(Resultshigh_psiBa$mod_with, na.rm = T)*100
+  
+CV_high <- data.frame("CV_psiA" = CV_high_psiA, 
+                         "CV_psiBA" = CV_high_psiBA,
+                         "CV_psiBa" = CV_high_psiBa)
+
+  CV_high_level <- CV_high %>% mutate(Predation_level = "high")
+  
+  all_CV <- rbind(CV_none_level, CV_low1_level, CV_low2_level, 
+                   CV_low3_level, CV_low4_level, CV_low5_level, CV_high_level)
+  
+
+  all_CV$Predation_level <- factor(all_CV$Predation_level, 
+                                    levels=c("none", "low", "low-medium", "medium", "high-medium",
+                                             "low-high", "high"))
+  
+  
+  return(all_CV)
+  
+}
+
+##we have the simulated values 
+CV_30N3J100Sims_PsiA0.5 <- extractData_CV(results_30N3J100Sims_PsiA0.5) %>% 
+  mutate(Simulation_scenario = "30sites_3reps")
+CV_50N3J100Sims_PsiA0.5 <- extractData_CV(results_50N3J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "50sites_3reps")
+CV_100N3J100Sims_PsiA0.5 <- extractData_CV(results_100N3J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "100sites_3reps")
+CV_30N5J100Sims_PsiA0.5 <- extractData_CV(results_30N5J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "30sites_5reps")
+CV_50N5J100Sims_PsiA0.5 <- extractData_CV(results_50N5J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "50sites_5reps")
+CV_100N5J100Sims_PsiA0.5 <- extractData_CV(results_100N5J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "100sites_5reps")
+CV_30N10J100Sims_PsiA0.5 <- extractData_CV(results_30N10J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "30sites_10reps")
+CV_50N10J100Sims_PsiA0.5 <- extractData_CV(results_50N10J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "50sites_10reps")
+CV_100N10J100Sims_PsiA0.5 <- extractData_CV(results_100N10J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "100sites_10reps")
+
+
+
+CV_150N3J100Sims_PsiA0.5 <- extractData_CV(results_150N3J100Sims_PsiA0.5) %>% 
+  mutate(Simulation_scenario = "150sites_3reps")
+CV_200N3J100Sims_PsiA0.5 <- extractData_CV(results_200N3J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "200sites_3reps")
+CV_250N3J100Sims_PsiA0.5 <- extractData_CV(results_250N3J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "250sites_3reps")
+CV_150N5J100Sims_PsiA0.5 <- extractData_CV(results_150N5J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "150sites_5reps")
+CV_200N5J100Sims_PsiA0.5 <- extractData_CV(results_200N5J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "200sites_5reps")
+CV_250N5J100Sims_PsiA0.5 <- extractData_CV(results_250N5J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "250sites_5reps")
+CV_150N10J100Sims_PsiA0.5 <- extractData_CV(results_150N10J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "150sites_10reps")
+CV_200N10J100Sims_PsiA0.5 <- extractData_CV(results_200N10J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "200sites_10reps")
+CV_250N10J100Sims_PsiA0.5 <- extractData_CV(results_250N10J100Sims_PsiA0.5)%>% 
+  mutate(Simulation_scenario = "250sites_10reps")
+
+
+CV <- rbind(CV_30N3J100Sims_PsiA0.5, CV_50N3J100Sims_PsiA0.5, CV_100N3J100Sims_PsiA0.5,
+             CV_30N5J100Sims_PsiA0.5, CV_50N5J100Sims_PsiA0.5, CV_100N5J100Sims_PsiA0.5,
+             CV_30N10J100Sims_PsiA0.5, CV_50N10J100Sims_PsiA0.5, CV_100N10J100Sims_PsiA0.5,
+             CV_150N3J100Sims_PsiA0.5, CV_200N3J100Sims_PsiA0.5, CV_250N3J100Sims_PsiA0.5,
+             CV_150N5J100Sims_PsiA0.5, CV_200N5J100Sims_PsiA0.5, CV_250N5J100Sims_PsiA0.5,
+             CV_150N10J100Sims_PsiA0.5, CV_200N10J100Sims_PsiA0.5, CV_250N10J100Sims_PsiA0.5)
+
+CV$Simulation_scenario <- factor(CV$Simulation_scenario,
+                                  levels = c("30sites_3reps","30sites_5reps","30sites_10reps","50sites_3reps","50sites_5reps","50sites_10reps","100sites_3reps","100sites_5reps","100sites_10reps","150sites_3reps","150sites_5reps","150sites_10reps","200sites_3reps","200sites_5reps","200sites_10reps","250sites_3reps","250sites_5reps","250sites_10reps"),
+                                  ordered = TRUE)
+
+saveRDS(CV,paste0(here::here("output","CV_Pr1.6_Pr2.8_PsiA0.5_30-250SitesPsiA0.5.RDS")))
+
+
+```
